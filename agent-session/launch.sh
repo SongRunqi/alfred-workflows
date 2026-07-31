@@ -79,7 +79,7 @@ claude | cc)
 esac
 
 # ---- launch ----
-local tmpfile="/tmp/pi-agent-$$.command"
+local tmpfile="/tmp/agent-session-$$.command"
 cat >"$tmpfile" <<EOF
 #!/bin/zsh
 $cmd

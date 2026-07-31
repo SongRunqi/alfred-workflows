@@ -154,7 +154,7 @@
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
-	<string>pi Agent</string>
+	<string>agent-session</string>
 	<key>objects</key>
 	<array>
 		<dict>

@@ -12,7 +12,7 @@ double-click one to import into Alfred.
 | --- | --- | --- |
 | [Homebrew Manager](Homebrew%20Manager/) | `brew` | Manage Homebrew packages: search, install, uninstall, update, cleanup |
 | [NetEase Music Controls](netease-music-controls/) | — | Control NetEase Cloud Music (play/pause/next/like/volume) from Alfred |
-| [pi-agent](pi-agent/) | — | Launch pi-coding-agent projects/sessions from Alfred |
+| [agent-session](agent-session/) | — | Launch pi-coding-agent projects/sessions from Alfred |
 | [System Settings](System%20Settings/) | — | Search and open macOS System Settings panes |
 
 ## Install
