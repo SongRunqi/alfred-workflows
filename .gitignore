@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Alfred user config (never share)
+prefs.plist
+
+# Python caches
+__pycache__/
+*.pyc
+.ruff_cache/

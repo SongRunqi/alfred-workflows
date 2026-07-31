@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>com.songyitian.system-settings</string>
+	<key>category</key>
+	<string>Tools</string>
+	<key>connections</key>
+	<dict>
+		<key>B1A2C3D4-0001-4000-A000-000000000001</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>B1A2C3D4-0002-4000-A000-000000000002</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>B1B443F3-7CBF-4C98-80B1-D4DB50FC1BE9</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>B1A2C3D4-0001-4000-A000-000000000001</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+	</dict>
+	<key>createdby</key>
+	<string>Songyitian</string>
+	<key>description</key>
+	<string>Search and open every macOS System Settings pane — fast, unified access to Login Items, Battery, Wi‑Fi, and more. Hotkey + keyword support.</string>
+	<key>name</key>
+	<string>Settings</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>action</key>
+				<integer>0</integer>
+				<key>argument</key>
+				<integer>0</integer>
+				<key>focusedappvariable</key>
+				<false/>
+				<key>focusedappvariablename</key>
+				<string></string>
+				<key>leftcursor</key>
+				<false/>
+				<key>modsmode</key>
+				<integer>0</integer>
+				<key>relatedAppsMode</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.trigger.hotkey</string>
+			<key>uid</key>
+			<string>B1B443F3-7CBF-4C98-80B1-D4DB50FC1BE9</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<true/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>0</integer>
+				<key>keyword</key>
+				<string>system</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Searching…</string>
+				<key>script</key>
+				<string></string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string>script.py</string>
+				<key>skipuniversalaction</key>
+				<true/>
+				<key>subtext</key>
+				<string>Type a search term (e.g. battery, wifi, login, 电池…)</string>
+				<key>title</key>
+				<string>System Settings</string>
+				<key>type</key>
+				<integer>8</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>B1A2C3D4-0001-4000-A000-000000000001</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>browser</key>
+				<string></string>
+				<key>skipqueryencode</key>
+				<false/>
+				<key>skipvarencode</key>
+				<false/>
+				<key>spaces</key>
+				<string></string>
+				<key>url</key>
+				<string>x-apple.systempreferences:{query}</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>B1A2C3D4-0002-4000-A000-000000000002</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string># Settings — macOS System Settings Search
+
+## Usage
+Type `system` followed by a space and a search term:
+- `system batt` → Battery
+- `system wifi` → Wi‑Fi
+- `system 电池` → Battery
+- `system login` → Login Items &amp; Extensions
+- `system ` (empty query) → show all 45 panes
+
+## Features
+- Search all macOS System Settings panes by English name, Chinese name, or pinyin
+- ⌘↵ to copy the bundle identifier
+- Press ⌘⇧, to trigger via hotkey (configurable)
+- Pane list auto-discovered and cached for 24 hours</string>
+	<key>uidata</key>
+	<dict>
+		<key>B1A2C3D4-0001-4000-A000-000000000001</key>
+		<dict>
+			<key>xpos</key>
+			<real>85.0</real>
+			<key>ypos</key>
+			<real>85.0</real>
+		</dict>
+		<key>B1A2C3D4-0002-4000-A000-000000000002</key>
+		<dict>
+			<key>xpos</key>
+			<real>355.0</real>
+			<key>ypos</key>
+			<real>85.0</real>
+		</dict>
+		<key>B1B443F3-7CBF-4C98-80B1-D4DB50FC1BE9</key>
+		<dict>
+			<key>xpos</key>
+			<real>-185.0</real>
+			<key>ypos</key>
+			<real>85.0</real>
+		</dict>
+	</dict>
+	<key>variablesdontexport</key>
+	<array/>
+	<key>webaddress</key>
+	<string></string>
+</dict>
+</plist>

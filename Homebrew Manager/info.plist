@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>com.songyitian.brew</string>
+	<key>category</key>
+	<string>Tools</string>
+	<key>connections</key>
+	<dict>
+		<key>0E89EB25-C9E8-4018-91A6-35A017789890</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>118765B3-58DF-4C0D-88D4-76A52D548A0A</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>6FBB2805-5FF3-49A5-AF82-20FC2DDA3483</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>0E89EB25-C9E8-4018-91A6-35A017789890</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+	</dict>
+	<key>createdby</key>
+	<string>Songyitian</string>
+	<key>description</key>
+	<string>Search, install, upgrade and manage Homebrew packages</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>Homebrew Manager</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<true/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>keyword</key>
+				<string>brew</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Searching packages…</string>
+				<key>script</key>
+				<string></string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string>script.py</string>
+				<key>subtext</key>
+				<string>Search, install &amp; manage brew packages</string>
+				<key>title</key>
+				<string>Homebrew Manager</string>
+				<key>type</key>
+				<integer>8</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>6FBB2805-5FF3-49A5-AF82-20FC2DDA3483</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>script</key>
+				<string></string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string>action.py</string>
+				<key>type</key>
+				<integer>8</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>0E89EB25-C9E8-4018-91A6-35A017789890</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<true/>
+				<key>removeextension</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>Homebrew Manager</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>118765B3-58DF-4C0D-88D4-76A52D548A0A</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string># Homebrew Manager
+
+Search, install, upgrade and manage Homebrew packages from Alfred.
+
+## Usage
+
+Type `brew` in Alfred:
+- **\&lt;empty\&gt;** — quick actions: update, upgrade all, cleanup, doctor
+- **brew \&lt;query\&gt;** — search installed and available packages
+
+## Actions
+
+| Key | Action |
+|-----|--------|
+| ⏎ | Show package info (installed) / Install (available) |
+| ⌘⏎ | Uninstall package |
+| ⌥⏎ | Upgrade package |
+
+## Requirements
+
+- [Homebrew](https://brew.sh) installed
+- macOS with Alfred 5+
+
+## Notes
+
+- Package lists are cached for performance. First run takes ~2s; subsequent searches are instant.
+- Installed packages refresh cache every hour; available package lists refresh weekly.
+</string>
+	<key>uidata</key>
+	<dict>
+		<key>0E89EB25-C9E8-4018-91A6-35A017789890</key>
+		<dict>
+			<key>xpos</key>
+			<real>300.0</real>
+			<key>ypos</key>
+			<real>60.0</real>
+		</dict>
+		<key>118765B3-58DF-4C0D-88D4-76A52D548A0A</key>
+		<dict>
+			<key>xpos</key>
+			<real>540.0</real>
+			<key>ypos</key>
+			<real>60.0</real>
+		</dict>
+		<key>6FBB2805-5FF3-49A5-AF82-20FC2DDA3483</key>
+		<dict>
+			<key>xpos</key>
+			<real>60.0</real>
+			<key>ypos</key>
+			<real>60.0</real>
+		</dict>
+	</dict>
+	<key>userconfigurationconfig</key>
+	<array/>
+	<key>variables</key>
+	<dict/>
+	<key>variablesdontexport</key>
+	<array/>
+	<key>version</key>
+	<string>1.0.0</string>
+	<key>webaddress</key>
+	<string></string>
+</dict>
+</plist>
