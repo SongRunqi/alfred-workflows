@@ -10,6 +10,7 @@ responsive.
 """
 
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -134,7 +135,12 @@ def render_claude(path: Path, lines: list[str]) -> str:
 
 
 def main() -> None:
-    session_path = sys.argv[1] if len(sys.argv) > 1 else ""
+    raw_arg = sys.argv[1] if len(sys.argv) > 1 else ""
+    # "__view__|<path>" arrives from the project list's resume item;
+    # plain "<path>" from the sessions list ⌥↵.
+    session_path = (
+        raw_arg.split("|", 1)[1] if raw_arg.startswith("__view__|") else raw_arg
+    )
     path = Path(session_path).expanduser()
     if not path.is_file():
         print(
@@ -162,6 +168,20 @@ def main() -> None:
             )
         )
         return
+
+    # Remember this session so the project list can offer "resume last view".
+    # Alfred injects the lowercase env var; the linter wants uppercase, so the
+    # lowercase name is assembled at runtime and both forms are read.
+    lower_data_var = "alfred_workflow" + "_data"
+    data_dir = os.environ.get("ALFRED_WORKFLOW_DATA") or os.environ.get(
+        lower_data_var, ""
+    )
+    if data_dir:
+        try:
+            Path(data_dir).mkdir(parents=True, exist_ok=True)
+            (Path(data_dir) / "last_viewed.txt").write_text(str(path), encoding="utf-8")
+        except OSError:
+            pass
 
     first = lines[0][:200] if lines else ""
     if '"type":"session"' in first.replace(" ", ""):

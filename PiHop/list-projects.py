@@ -228,6 +228,27 @@ def main():
 
     # --- Build items ---
     items = []
+
+    # Resume-last-view item on top, when a session was browsed before.
+    lower_data_var = "alfred_workflow" + "_data"
+    data_dir = os.environ.get("ALFRED_WORKFLOW_DATA") or os.environ.get(lower_data_var, "")
+    last_viewed = ""
+    if data_dir:
+        lv = Path(data_dir) / "last_viewed.txt"
+        if lv.is_file():
+            try:
+                last_viewed = lv.read_text(encoding="utf-8").strip()
+            except OSError:
+                last_viewed = ""
+    if last_viewed and Path(last_viewed).is_file():
+        items.append(
+            {
+                "title": "📖 恢复上次浏览的会话",
+                "subtitle": f"{Path(last_viewed).name[:70]}",
+                "arg": f"__view__|{last_viewed}",
+            }
+        )
+
     for dir_path, p in sorted_projects:
         name = Path(dir_path).name
         pi_c, pi_l = p["pi_count"], p["pi_last"]

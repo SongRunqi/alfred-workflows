@@ -11,7 +11,11 @@ Requires **Alfred 5.5+** (the session browser uses the Text View).
   `~/.claude`)
 - ↩ on a project — its sessions
 - ↩ on a session — resume it in the terminal
-- ⌥ on a session — browse the conversation in a Text View (markdown-rendered)
+- ⌥ on a session — browse the conversation in a Text View (markdown-rendered,
+  opens at the latest message)
+- ↵ in the Text View — back to the session list (Esc closes)
+- `hop` again later — the project list shows "📖 恢复上次浏览的会话" on top,
+  restoring the last browsed session even after Alfred was closed
 - ⌘↵ on "Start new session" — pick the agent
 
 ## Development

@@ -8,6 +8,44 @@
 	<string>Tools</string>
 	<key>connections</key>
 	<dict>
+		<key>AED3EAA0-473D-46C5-B37C-851EEDE3F27F</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>D7048A67-A709-48FE-8CFF-8CDD4D313D8A</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>sourceoutputuid</key>
+				<string>A15EB5F0-0137-4463-9329-DC50EB9FEFCD</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>PID-CALLS</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>D7048A67-A709-48FE-8CFF-8CDD4D313D8A</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>PID-CALLS</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>PID-CALLB</key>
 		<array>
 			<dict>
@@ -127,7 +165,7 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>PID-CALLS</string>
+				<string>AED3EAA0-473D-46C5-B37C-851EEDE3F27F</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -449,7 +487,7 @@
 				<key>fontsizing</key>
 				<integer>0</integer>
 				<key>footertext</key>
-				<string>浏览会话内容 · Esc 关闭</string>
+				<string>↵ 返回会话列表 · Esc 关闭</string>
 				<key>inputfile</key>
 				<string>view-session.py</string>
 				<key>inputtype</key>
@@ -472,6 +510,38 @@
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>conditions</key>
+				<array>
+					<dict>
+						<key>inputstring</key>
+						<string></string>
+						<key>matchcasesensitive</key>
+						<false/>
+						<key>matchmode</key>
+						<integer>4</integer>
+						<key>matchstring</key>
+						<string>^__view__</string>
+						<key>outputlabel</key>
+						<string>View session</string>
+						<key>uid</key>
+						<string>A15EB5F0-0137-4463-9329-DC50EB9FEFCD</string>
+					</dict>
+				</array>
+				<key>elselabel</key>
+				<string>else</string>
+				<key>hideelse</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.utility.conditional</string>
+			<key>uid</key>
+			<string>AED3EAA0-473D-46C5-B37C-851EEDE3F27F</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string># PiHop
@@ -491,6 +561,13 @@ Hop into pi / Claude Code agent sessions grouped by project.
 Requires Alfred 5+.</string>
 	<key>uidata</key>
 	<dict>
+		<key>AED3EAA0-473D-46C5-B37C-851EEDE3F27F</key>
+		<dict>
+			<key>xpos</key>
+			<real>400.0</real>
+			<key>ypos</key>
+			<real>60.0</real>
+		</dict>
 		<key>D7048A67-A709-48FE-8CFF-8CDD4D313D8A</key>
 		<dict>
 			<key>xpos</key>
