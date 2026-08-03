@@ -1,0 +1,184 @@
+#!/usr/bin/env python3
+"""view-session.py — Render a pi / Claude Code session file as Markdown for the
+Text View.
+
+Input:   session file path (argv[1], from the ⌥↵ item arg)
+Output:  Text View JSON — {"response": markdown, "behaviour": {...}}
+
+Reads at most the first 3000 lines and caps each message so huge sessions stay
+responsive.
+"""
+
+import json
+import sys
+from datetime import datetime
+from pathlib import Path
+
+MAX_LINES = 3000
+MAX_MESSAGE_CHARS = 4000
+
+
+def parse_ts(ts: str) -> str:
+    """UTC ISO -> local 'MM-DD HH:MM'. Never treat naive UTC as local time."""
+    if not ts:
+        return ""
+    try:
+        t = datetime.fromisoformat(ts.replace("Z", "+00:00"))
+        return t.astimezone().strftime("%m-%d %H:%M")
+    except ValueError:
+        return ""
+
+
+def content_to_markdown(content) -> str:
+    """content may be a plain string or a list of blocks."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if not isinstance(block, dict):
+                parts.append(str(block))
+                continue
+            kind = block.get("type", "")
+            if kind == "text":
+                parts.append(block.get("text", ""))
+            elif kind == "thinking":
+                parts.append(
+                    f"\n<details><summary>💭 thinking</summary>\n\n"
+                    f"{block.get('thinking', '')}\n\n</details>\n"
+                )
+            elif kind == "tool_use":
+                name = block.get("name", "?")
+                inp = block.get("input", {})
+                snippet = json.dumps(inp, ensure_ascii=False, indent=2)
+                parts.append(f"\n```json\n// 🛠 {name}\n{snippet[:1200]}\n```\n")
+            elif kind == "tool_result":
+                result = block.get("content", "")
+                if isinstance(result, list):
+                    result = "\n".join(
+                        b.get("text", "") for b in result if isinstance(b, dict)
+                    )
+                parts.append(f"\n```\n{str(result)[:800]}\n```\n")
+            else:
+                parts.append(f"`[{kind}]`")
+        return "\n".join(parts)
+    return str(content)
+
+
+def parse_line(line: str) -> dict | None:
+    """One jsonl line -> dict, or None when unparsable."""
+    line = line.strip()
+    if not line:
+        return None
+    try:
+        return json.loads(line)
+    except ValueError:
+        return None
+
+
+def render_pi(path: Path, lines: list[str]) -> str:
+    title_ts = ""
+    cwd = ""
+    out = []
+    for line in lines:
+        obj = parse_line(line)
+        if not obj:
+            continue
+        kind = obj.get("type")
+        if kind == "session":
+            title_ts = parse_ts(obj.get("timestamp", ""))
+            cwd = obj.get("cwd", "")
+        elif kind == "message":
+            msg = obj.get("message", {})
+            role = msg.get("role")
+            content = content_to_markdown(msg.get("content", ""))
+            ts = parse_ts(obj.get("timestamp", ""))
+            if role == "user":
+                out.append(f"\n## 🧑 You {('· ' + ts) if ts else ''}\n\n{content}")
+            elif role == "assistant":
+                out.append(
+                    f"\n## 🤖 Assistant {('· ' + ts) if ts else ''}\n\n{content}"
+                )
+        # model_change / thinking_level_change / custom: skipped
+    header = f"# Session {title_ts}" if title_ts else "# Session"
+    if cwd:
+        header += f"\n\n`{cwd}`"
+    body = "\n".join(out) or "\n*(empty session)*"
+    return header + "\n\n---\n" + body
+
+
+def render_claude(path: Path, lines: list[str]) -> str:
+    title = ""
+    out = []
+    for line in lines:
+        obj = parse_line(line)
+        if not obj:
+            continue
+        kind = obj.get("type")
+        if kind == "ai-title":
+            title = obj.get("aiTitle", "")
+        elif kind in ("user", "assistant"):
+            msg = obj.get("message", {})
+            content = content_to_markdown(msg.get("content", ""))
+            ts = parse_ts(obj.get("timestamp", ""))
+            if kind == "user":
+                out.append(f"\n## 🧑 You {('· ' + ts) if ts else ''}\n\n{content}")
+            else:
+                out.append(
+                    f"\n## 🤖 Assistant {('· ' + ts) if ts else ''}\n\n{content}"
+                )
+        # hook_attachment / local-command-caveat / etc: skipped
+    header = f"# {title}" if title else f"# {path.stem}"
+    body = "\n".join(out) or "\n*(empty session)*"
+    return header + "\n\n---\n" + body
+
+
+def main() -> None:
+    session_path = sys.argv[1] if len(sys.argv) > 1 else ""
+    path = Path(session_path).expanduser()
+    if not path.is_file():
+        print(
+            json.dumps(
+                {
+                    "response": f"# 无法打开会话\n\n`{session_path}`",
+                    "behaviour": {"response": "replace", "scroll": "start"},
+                },
+                ensure_ascii=False,
+            )
+        )
+        return
+
+    try:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            lines = fh.readlines()[:MAX_LINES]
+    except (OSError, PermissionError) as exc:
+        print(
+            json.dumps(
+                {
+                    "response": f"# 无法读取会话\n\n`{exc}`",
+                    "behaviour": {"response": "replace", "scroll": "start"},
+                },
+                ensure_ascii=False,
+            )
+        )
+        return
+
+    first = lines[0][:200] if lines else ""
+    if '"type":"session"' in first.replace(" ", ""):
+        markdown = render_pi(path, lines)
+    else:
+        markdown = render_claude(path, lines)
+
+    print(
+        json.dumps(
+            {
+                "response": markdown,
+                "behaviour": {"response": "replace", "scroll": "start"},
+            },
+            ensure_ascii=False,
+        )
+    )
+
+
+if __name__ == "__main__":
+    main()

@@ -171,6 +171,12 @@ def scan_pi_sessions(project_dir: str) -> list[dict]:
                 "title": title,
                 "subtitle": f"pi  ·  {fmt_time(ts)}  ·  {(sf.stat().st_size / 1024):.0f}KB",
                 "arg": f"{sf}|pi|{project_dir}",
+                "mods": {
+                    "alt": {
+                        "subtitle": "⌥ 浏览会话内容",
+                        "arg": f"{sf}",
+                    }
+                },
                 "ts": ts,
                 "agent": "pi",
             }
@@ -268,6 +274,12 @@ def scan_claude_sessions(project_dir: str) -> list[dict]:
                 "title": title,
                 "subtitle": f"claude  ·  {fmt_time(ts)}  ·  {(sf.stat().st_size / 1024):.0f}KB{active}",
                 "arg": f"{sf}|claude|{project_dir}",
+                "mods": {
+                    "alt": {
+                        "subtitle": "⌥ 浏览会话内容",
+                        "arg": f"{sf}",
+                    }
+                },
                 "ts": ts,
                 "agent": "claude",
             }
@@ -369,14 +381,15 @@ def show_sessions(project_dir: str, filter_text: str = ""):
         if q and q not in (s["title"] + " " + s["subtitle"]).lower():
             continue
         aid = s["agent"]
-        items.append(
-            {
-                "title": f"{_agent_icon(aid)}  {s['title']}",
-                "subtitle": s["subtitle"],
-                "arg": s["arg"],
-                "icon": {"path": str(project_path)},
-            }
-        )
+        item = {
+            "title": f"{_agent_icon(aid)}  {s['title']}",
+            "subtitle": s["subtitle"],
+            "arg": s["arg"],
+            "icon": {"path": str(project_path)},
+        }
+        if s.get("mods"):
+            item["mods"] = s["mods"]
+        items.append(item)
 
     if len(items) == 2:
         items.append(

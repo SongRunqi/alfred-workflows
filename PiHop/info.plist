@@ -158,6 +158,16 @@
 				<key>vitoclose</key>
 				<false/>
 			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>D7048A67-A709-48FE-8CFF-8CDD4D313D8A</string>
+				<key>modifiers</key>
+				<integer>524288</integer>
+				<key>modifiersubtext</key>
+				<string>⌥ 浏览会话内容</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
 		</array>
 	</dict>
 	<key>createdby</key>
@@ -182,7 +192,7 @@
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>keyword</key>
-				<string>agent</string>
+				<string>hop</string>
 				<key>runningsubtext</key>
 				<string>Scanning projects…</string>
 				<key>script</key>
@@ -429,6 +439,39 @@
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>behaviour</key>
+				<integer>2</integer>
+				<key>fontmode</key>
+				<integer>0</integer>
+				<key>fontsizing</key>
+				<integer>0</integer>
+				<key>footertext</key>
+				<string>浏览会话内容 · Esc 关闭</string>
+				<key>inputfile</key>
+				<string>view-session.py</string>
+				<key>inputtype</key>
+				<integer>1</integer>
+				<key>loadingtext</key>
+				<string>Loading session…</string>
+				<key>outputmode</key>
+				<integer>1</integer>
+				<key>scriptinput</key>
+				<integer>2</integer>
+				<key>spellchecking</key>
+				<integer>0</integer>
+				<key>stackview</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.userinterface.text</string>
+			<key>uid</key>
+			<string>D7048A67-A709-48FE-8CFF-8CDD4D313D8A</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string># PiHop
@@ -448,6 +491,13 @@ Hop into pi / Claude Code agent sessions grouped by project.
 Requires Alfred 5+.</string>
 	<key>uidata</key>
 	<dict>
+		<key>D7048A67-A709-48FE-8CFF-8CDD4D313D8A</key>
+		<dict>
+			<key>xpos</key>
+			<real>620.0</real>
+			<key>ypos</key>
+			<real>400.0</real>
+		</dict>
 		<key>PID-CALLB</key>
 		<dict>
 			<key>xpos</key>
