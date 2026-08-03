@@ -231,7 +231,9 @@ def main():
 
     # Resume-last-view item on top, when a session was browsed before.
     lower_data_var = "alfred_workflow" + "_data"
-    data_dir = os.environ.get("ALFRED_WORKFLOW_DATA") or os.environ.get(lower_data_var, "")
+    data_dir = os.environ.get("ALFRED_WORKFLOW_DATA") or os.environ.get(
+        lower_data_var, ""
+    )
     last_viewed = ""
     if data_dir:
         lv = Path(data_dir) / "last_viewed.txt"
