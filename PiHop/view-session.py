@@ -141,7 +141,7 @@ def main() -> None:
             json.dumps(
                 {
                     "response": f"# 无法打开会话\n\n`{session_path}`",
-                    "behaviour": {"response": "replace", "scroll": "start"},
+                    "behaviour": {"response": "replace", "scroll": "end"},
                 },
                 ensure_ascii=False,
             )
@@ -156,7 +156,7 @@ def main() -> None:
             json.dumps(
                 {
                     "response": f"# 无法读取会话\n\n`{exc}`",
-                    "behaviour": {"response": "replace", "scroll": "start"},
+                    "behaviour": {"response": "replace", "scroll": "end"},
                 },
                 ensure_ascii=False,
             )
@@ -173,7 +173,7 @@ def main() -> None:
         json.dumps(
             {
                 "response": markdown,
-                "behaviour": {"response": "replace", "scroll": "start"},
+                "behaviour": {"response": "replace", "scroll": "end"},
             },
             ensure_ascii=False,
         )
