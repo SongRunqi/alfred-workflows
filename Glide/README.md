@@ -15,6 +15,8 @@ instant snapping, or let the system Reduce Motion setting disable it.
 ## Requirements
 
 - Alfred 5 (any recent version)
+- **macOS 13+** — Intel & Apple Silicon (the bundled engine is a universal
+  binary)
 - Alfred needs **Accessibility** permission:
   System Settings → Privacy & Security → Accessibility → enable Alfred
   (this is what lets Alfred resize other apps' windows)
@@ -33,21 +35,12 @@ Type any keyword below and press ↩ — the frontmost window moves immediately:
 | `bottomleft` | bottom-left quarter |
 | `bottomright` | bottom-right quarter |
 
-Also available: type **`window`** for a pickable action list, or use the
-hotkeys (all rebindable):
+Also available: type **`window`** for a pickable action list, or add your
+own hotkeys — every action ships with an **unbound** hotkey trigger, so
+importing never conflicts with shortcuts you already use.
 
-| Action | Hotkey |
-| --- | --- |
-| Maximize | ⌃⌥⌘M |
-| Reasonable | ⌃⌥⌘R |
-| Center | ⌃⌥⌘C |
-| Top-left quarter | ⌃⌥⌘7 |
-| Top-right quarter | ⌃⌥⌘9 |
-| Bottom-left quarter | ⌃⌥⌘1 |
-| Bottom-right quarter | ⌃⌥⌘3 |
-
-Rebind: Workflows → Glide → double-click a hotkey trigger → record
-the keys.
+Add a hotkey: Workflows → Glide → double-click a hotkey trigger → record
+the keys (e.g. Maximize on ⌃⌥⌘M).
 
 ## Behaviour notes
 
@@ -74,6 +67,13 @@ the keys.
 - **Disable Acidham's "Window Manager"** if it is installed: it claims the
   `center` / `reasonable` keywords too, and Alfred would show both workflows.
 
+## Install
+
+1. Download `Glide.alfredworkflow`
+2. Double-click it → Alfred imports the workflow
+3. Grant Alfred **Accessibility** permission (see Requirements) if prompted
+   or when the first action doesn't move a window
+
 ## Development
 
 - `info.plist` is generated — edit `build_plist.py`, then
@@ -81,5 +81,9 @@ the keys.
 - Engine: `swiftc -O -framework AppKit -framework ApplicationServices window_control.swift -o window_control`
 - Icon: `icon.png` is the workflow icon (AI-generated, replace freely).
 - Icons: `swiftc -O make_icons.swift -o /tmp/mkicons && /tmp/mkicons icons`.
-- Package (excludes the dev files, keeps exec bits):
-  `zip -r ../"Glide.alfredworkflow" . -x "build_plist.py" "make_icons.swift" ".DS_Store" "*.pyc" ".ruff_cache/*"`
+- **Package for release: `./pack.sh`** — stages only runtime files
+  (scripts, engine, icons, plist), keeps the `+x` exec bits (so Alfred never
+  reports “launch path not accessible”), and verifies the zip before
+  printing “Ready to release”.
+  Use `./pack.sh --universal` to rebuild `window_control` as a
+  universal binary (arm64 + x86_64, macOS 13+) from the Swift source first.

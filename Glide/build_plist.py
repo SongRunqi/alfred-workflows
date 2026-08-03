@@ -16,14 +16,14 @@ HERE = Path(__file__).parent
 
 # --- action ids --------------------------------------------------------------
 ACTIONS = [
-    # (id, condition label, hotkey keycode, hotstring)
-    ("max", "Maximize", 46, "M"),
-    ("reasonable", "Reasonable", 15, "R"),
-    ("center", "Center", 8, "C"),
-    ("tl", "Top Left", 26, "7"),
-    ("tr", "Top Right", 28, "9"),
-    ("bl", "Bottom Left", 18, "1"),
-    ("br", "Bottom Right", 20, "3"),
+    # (id, condition label)
+    ("max", "Maximize"),
+    ("reasonable", "Reasonable"),
+    ("center", "Center"),
+    ("tl", "Top Left"),
+    ("tr", "Top Right"),
+    ("bl", "Bottom Left"),
+    ("br", "Bottom Right"),
 ]
 
 # id -> (keyword trigger, result title, result subtext)
@@ -38,8 +38,6 @@ KEYWORDS = {
 }
 
 LIST_KEYWORD = "window"  # "win" is claimed by the installed "Search ALL the docs!"
-
-HOTMOD = 1835008  # ⌃⌥⌘ = 262144 + 524288 + 1048576 (NSEvent bitmask)
 
 
 def uid() -> str:
@@ -117,8 +115,10 @@ for action_id, *_rest in ACTIONS:
         }
     )
 
-# --- Hotkeys (pre-assigned ⌃⌥⌘ scheme; rebindable in Alfred) ----------------
-for action_id, _label, keycode, hotstring in ACTIONS:
+# --- Hotkey triggers (unbound by default; rebindable in Alfred) ---------------
+# Triggers ship without hotkey/hotmod/hotstring so import never collides with
+# the user's existing shortcuts; double-click a trigger in Alfred to record one.
+for action_id, _label in ACTIONS:
     objects.append(
         {
             "config": {
@@ -127,9 +127,6 @@ for action_id, _label, keycode, hotstring in ACTIONS:
                 "argumenttext": action_id,
                 "focusedappvariable": False,
                 "focusedappvariablename": "",
-                "hotkey": keycode,
-                "hotmod": HOTMOD,
-                "hotstring": hotstring,
                 "leftcursor": False,
                 "modsmode": 0,
                 "relatedAppsMode": 0,
@@ -211,8 +208,15 @@ every action lands exactly where the screen allows.
 ### Requirements
 
 - **Alfred 5** (any recent version)
+- **macOS 13+** — Intel & Apple Silicon (universal engine binary)
 - Alfred needs **Accessibility** permission:
   System Settings → Privacy & Security → Accessibility → enable Alfred
+
+### Install
+
+1. Download `Glide.alfredworkflow` and double-click it to import
+2. Grant Alfred **Accessibility** permission (above) if the first action
+   doesn't move a window
 
 ### Usage — keywords
 
@@ -228,9 +232,10 @@ Type any keyword below and press ↩ — the frontmost window moves immediately:
 | `bottomleft` | bottom-left quarter |
 | `bottomright` | bottom-right quarter |
 
-Also available: type **`window`** for a pickable action list, or use the
-hotkeys (⌃⌥⌘M / R / C / 7 / 9 / 1 / 3 — rebindable: Workflows → Glide
-→ double-click a hotkey trigger → record keys).
+Also available: type **`window`** for a pickable action list, or add your
+own hotkeys — every action ships with an unbound hotkey trigger
+(Workflows → Glide → double-click a trigger → record keys). No shortcuts are
+assigned by default, so importing never conflicts with keys you already use.
 
 ### Behaviour notes
 
