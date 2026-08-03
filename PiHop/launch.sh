@@ -67,11 +67,30 @@ _launch_kitty() {
 		# kitty IS running but has no controllable socket (old instance
 		# started before listen_on was added, or a broken one). NEVER pile
 		# up another window on top of the user's — tell them instead.
-		echo "osascript -e 'display notification \"你的 kitty 未启用远程控制（旧实例），请退出并重新打开 kitty 一次，之后恢复会话都会开新 tab\" with title \"agent-session\"'"
+		echo "osascript -e 'display notification \"kitty 未启用远程控制：请在 kitty.conf 添加 listen_on unix:/tmp/kitty-{kitty_pid}.sock 和 allow_remote_control yes，保存后退出并重新打开 kitty 一次，之后会话都会开新 tab\" with title \"PiHop\"'"
 	else
 		# no kitty at all → a new instance is the correct behavior
 		echo "open -n -a kitty --args $kitty_args zsh $qf"
 	fi
+}
+
+# ---- busy-claude detection ----
+# If the session we are about to resume is already attached to a running
+# claude process (status busy in ~/.claude/sessions/*.json), `claude
+# --resume` refuses and exits with a "background agent" notice. Detect it
+# and fork a copy instead, so the user lands in a working session.
+_session_is_busy() {
+	setopt local_options null_glob
+	local sid="$1"
+	local f
+	for f in "$HOME"/.claude/sessions/*.json; do
+		[[ -f "$f" ]] || continue
+		if grep -q "\"sessionId\"[[:space:]]*:[[:space:]]*\"$sid\"" "$f" \
+			&& grep -q "\"status\"[[:space:]]*:[[:space:]]*\"busy\"" "$f"; then
+			return 0
+		fi
+	done
+	return 1
 }
 
 # ---- parse ----
@@ -137,7 +156,11 @@ claude | cc)
 		local sid
 		sid=$(head -1 "$session_file" | python3 -c "import sys,json; print(json.load(sys.stdin).get('sessionId',''))" 2>/dev/null || true)
 		if [[ -n "$sid" ]]; then
-			cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}' && claude --resume '${sid}'; exec \${SHELL:-/bin/zsh}"
+			if _session_is_busy "$sid"; then
+				cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}（原会话在后台运行，已分支副本）' && claude --resume '${sid}' --fork-session; exec \${SHELL:-/bin/zsh}"
+			else
+				cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}' && claude --resume '${sid}'; exec \${SHELL:-/bin/zsh}"
+			fi
 		else
 			cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}' && claude --continue; exec \${SHELL:-/bin/zsh}"
 		fi
@@ -182,8 +205,10 @@ local termcmd=""
 local qf="${(q)tmpfile}"
 case "$terminal" in
 iTerm | iterm)
-	# Native AppleScript tab support. Starts iTerm if needed.
-	termcmd="osascript -e 'tell application \"iTerm\"' -e 'if (count of windows) > 0 then' -e 'tell current window to create tab with default profile command \"zsh $qf\"' -e 'else' -e 'create window with default profile command \"zsh $qf\"' -e 'end if' -e 'end tell'"
+	# Native AppleScript tab support, then bring iTerm to the front —
+	# `create tab` alone runs the new tab in the background and the user
+	# never sees it open.
+	termcmd="osascript -e 'tell application \"iTerm\"' -e 'if (count of windows) > 0 then' -e 'tell current window to create tab with default profile command \"zsh $qf\"' -e 'else' -e 'create window with default profile command \"zsh $qf\"' -e 'end if' -e 'activate' -e 'end tell'"
 	;;
 Terminal | terminal)
 	# Terminal.app has no native "new tab" API; GUI scripting needs
@@ -191,8 +216,13 @@ Terminal | terminal)
 	termcmd="osascript -e 'tell application \"Terminal\" to activate' -e 'delay 0.2' -e 'tell application \"System Events\" to keystroke \"t\" using command down' -e 'delay 0.3' -e 'tell application \"Terminal\" to do script \"zsh $qf\" in front window' 2>/dev/null || osascript -e 'tell application \"Terminal\" to do script \"zsh $qf\"'"
 	;;
 kitty)
-	termcmd="$(_launch_kitty "$qf")"
-	;;
+termcmd="$(_launch_kitty "$qf")"
+;;
+ghostty)
+# No remote-control / tab API (as of 1.x) — open a new window via
+# ghostty's own -e flag through LaunchServices.
+termcmd="open -a ghostty --args -e zsh $qf"
+;;
 *)
 	if [[ -n "$terminal" && "$terminal" == *"{file}"* ]]; then
 		if [[ "${terminal%% *}" == "kitty" ]]; then

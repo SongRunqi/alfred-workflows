@@ -695,12 +695,16 @@ Requires Alfred 5+.</string>
 					</array>
 					<array>
 						<string>kitty</string>
-						<string>kitty --detach zsh {file}</string>
+						<string>kitty</string>
+					</array>
+					<array>
+						<string>ghostty</string>
+						<string>ghostty</string>
 					</array>
 				</array>
 			</dict>
 			<key>description</key>
-			<string>Terminal for sessions — opens a new tab when possible. kitty needs allow_remote_control yes in kitty.conf; Terminal.app needs Accessibility permission. Any other value: app name (open -a) or a template containing {file}.</string>
+			<string>打开会话的终端（能开新 tab 的优先）。iTerm：原生 tab 支持，自动置前。Terminal.app：需要辅助功能权限。kitty：需要 kitty.conf 配置 listen_on unix:/tmp/kitty-{kitty_pid}.sock 和 allow_remote_control yes，保存后重启 kitty 一次。ghostty：无 tab API，以新窗口打开。其他值：应用名（open -a）或含 {file} 的模板。</string>
 			<key>label</key>
 			<string>Terminal</string>
 			<key>type</key>
