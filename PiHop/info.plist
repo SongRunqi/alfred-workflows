@@ -34,6 +34,19 @@
 				<false/>
 			</dict>
 		</array>
+		<key>PID-CALLS</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>PID-EXTS</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>PID-COND</key>
 		<array>
 			<dict>
@@ -114,7 +127,7 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>PID-SESS</string>
+				<string>PID-CALLS</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -150,11 +163,11 @@
 	<key>createdby</key>
 	<string>yitiansong</string>
 	<key>description</key>
-	<string>Browse agent sessions grouped by project</string>
+	<string>Hop into pi / Claude Code agent sessions grouped by project</string>
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
-	<string>agent-session</string>
+	<string>PiHop</string>
 	<key>objects</key>
 	<array>
 		<dict>
@@ -165,7 +178,7 @@
 				<key>alfredfiltersresultsmatchmode</key>
 				<integer>0</integer>
 				<key>argumenttype</key>
-				<integer>2</integer>
+				<integer>1</integer>
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>keyword</key>
@@ -185,7 +198,7 @@
 				<key>type</key>
 				<integer>0</integer>
 				<key>withspace</key>
-				<true/>
+				<false/>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.input.scriptfilter</string>
@@ -202,7 +215,7 @@
 				<key>alfredfiltersresultsmatchmode</key>
 				<integer>0</integer>
 				<key>argumenttype</key>
-				<integer>2</integer>
+				<integer>1</integer>
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>runningsubtext</key>
@@ -258,9 +271,9 @@
 						<key>matchcasesensitive</key>
 						<false/>
 						<key>matchmode</key>
-						<integer>2</integer>
+						<integer>4</integer>
 						<key>matchstring</key>
-						<string>__rerun__</string>
+						<string>^__rerun__</string>
 						<key>modifiers</key>
 						<integer>0</integer>
 						<key>modifiersubtext</key>
@@ -348,14 +361,22 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>action</key>
+				<integer>0</integer>
 				<key>argument</key>
-				<string>__finder__|pi</string>
-				<key>argumenttype</key>
-				<integer>2</integer>
+				<integer>0</integer>
+				<key>focusedappvariable</key>
+				<false/>
+				<key>focusedappvariablename</key>
+				<string></string>
+				<key>hotkey</key>
+				<integer>0</integer>
 				<key>hotmod</key>
-				<string></string>
-				<key>hotstring</key>
-				<string></string>
+				<integer>0</integer>
+				<key>leftcursor</key>
+				<false/>
+				<key>modsmode</key>
+				<integer>0</integer>
 				<key>relatedAppsMode</key>
 				<integer>0</integer>
 			</dict>
@@ -389,9 +410,42 @@
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>externaltriggerid</key>
+				<string>go-sessions</string>
+				<key>passinputasargument</key>
+				<false/>
+				<key>passvariables</key>
+				<true/>
+				<key>workflowbundleid</key>
+				<string>self</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.callexternaltrigger</string>
+			<key>uid</key>
+			<string>PID-CALLS</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
 	</array>
 	<key>readme</key>
-	<string></string>
+	<string># PiHop
+
+Hop into pi / Claude Code agent sessions grouped by project.
+
+## Usage
+- `agent` — project list (auto-discovered from ~/.pi/agent/sessions and ~/.claude)
+- ⏎ on a project — its sessions
+- ⏎ on a session — resume it in the terminal · ⌘↵ on "Start new session" — pick the agent
+- ← Back items return to the previous list
+
+## Configuration (workflow variables / Configuration)
+- `DEFAULT_AGENT` — agent used by Enter on "Start new session" (pi | claude)
+- `AGENT_TERMINAL` — iTerm / Terminal / kitty / template with {file}
+
+Requires Alfred 5+.</string>
 	<key>uidata</key>
 	<dict>
 		<key>PID-CALLB</key>
@@ -407,6 +461,13 @@
 			<integer>510</integer>
 			<key>ypos</key>
 			<integer>50</integer>
+		</dict>
+		<key>PID-CALLS</key>
+		<dict>
+			<key>xpos</key>
+			<integer>380</integer>
+			<key>ypos</key>
+			<integer>230</integer>
 		</dict>
 		<key>PID-COND</key>
 		<dict>
@@ -486,7 +547,48 @@
 			<key>variable</key>
 			<string>DEFAULT_AGENT</string>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>default</key>
+				<string></string>
+				<key>pairs</key>
+				<array>
+					<array>
+						<string>System Default</string>
+						<string></string>
+					</array>
+					<array>
+						<string>Terminal.app</string>
+						<string>Terminal</string>
+					</array>
+					<array>
+						<string>iTerm</string>
+						<string>iTerm</string>
+					</array>
+					<array>
+						<string>kitty</string>
+						<string>kitty --detach zsh {file}</string>
+					</array>
+				</array>
+			</dict>
+			<key>description</key>
+			<string>Terminal for sessions — opens a new tab when possible. kitty needs allow_remote_control yes in kitty.conf; Terminal.app needs Accessibility permission. Any other value: app name (open -a) or a template containing {file}.</string>
+			<key>label</key>
+			<string>Terminal</string>
+			<key>type</key>
+			<string>popupbutton</string>
+			<key>variable</key>
+			<string>AGENT_TERMINAL</string>
+		</dict>
 	</array>
+	<key>variables</key>
+	<dict>
+		<key>AGENT_AGENTS</key>
+		<string>{"pi": {"name": "pi", "icon": "🟢", "launch": "pi"}, "claude": {"name": "Claude Code", "icon": "🟣", "launch": "claude"}}</string>
+	</dict>
+	<key>version</key>
+	<string>1.1.0</string>
 	<key>webaddress</key>
 	<string></string>
 </dict>

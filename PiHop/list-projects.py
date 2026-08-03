@@ -4,6 +4,7 @@
 Output: arg = <project_dir>
 """
 
+import datetime
 import json
 import os
 import sys
@@ -18,7 +19,8 @@ CLAUDE_SESSIONS = HOME / ".claude" / "sessions"
 CLAUDE_PROJECTS = HOME / ".claude" / "projects"
 
 # ---- Config ----
-CONFIG_PATH = HOME / ".pi-agent-config.json"
+# All configuration comes from Alfred workflow environment variables
+# (Alfred → workflow → [x] → Variables). No config files on disk.
 _DEFAULT_AGENTS = {
     "pi": {"name": "pi", "icon": "🟢", "launch": "pi"},
     "claude": {"name": "Claude Code", "icon": "🟣", "launch": "claude"},
@@ -27,20 +29,16 @@ _DEFAULT_AGENTS = {
 
 def _load_config():
     cfg = {"defaultAgent": "pi", "agents": dict(_DEFAULT_AGENTS)}
-    # 1. JSON config file (lower priority)
-    if CONFIG_PATH.is_file():
-        try:
-            with open(CONFIG_PATH) as f:
-                user = json.load(f)
-            if "defaultAgent" in user:
-                cfg["defaultAgent"] = user["defaultAgent"]
-            if "agents" in user:
-                cfg["agents"] = {**cfg["agents"], **user["agents"]}
-        except Exception:
-            pass
-    # 2. Alfred config env var (highest priority)
     if os.environ.get("DEFAULT_AGENT"):
         cfg["defaultAgent"] = os.environ["DEFAULT_AGENT"]
+    agents_json = os.environ.get("AGENT_AGENTS", "").strip()
+    if agents_json:
+        try:
+            user = json.loads(agents_json)
+            if isinstance(user, dict):
+                cfg["agents"] = {**cfg["agents"], **user}
+        except Exception:
+            pass
     return cfg
 
 
@@ -87,13 +85,32 @@ def decode_path(encoded: str) -> str | None:
     return None
 
 
-def reltime(ts: str) -> str:
+def _parse_ts(ts: str) -> float | None:
+    """Parse an ISO timestamp (with optional Z / offset) to local epoch seconds."""
     if not ts:
+        return None
+    s = ts.strip()
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        dt = datetime.datetime.fromisoformat(s)
+    except ValueError:
+        try:
+            dt = datetime.datetime.strptime(ts[:19], "%Y-%m-%dT%H:%M:%S")
+        except ValueError:
+            return None
+    if dt.tzinfo:
+        dt = dt.astimezone()
+    return dt.timestamp()
+
+
+def reltime(ts: str) -> str:
+    t = _parse_ts(ts)
+    if t is None:
         return "never"
     try:
-        t = time.mktime(time.strptime(ts[:19], "%Y-%m-%dT%H:%M:%S"))
         diff = int(time.time() - t)
-    except ValueError:
+    except (OSError, OverflowError):
         return "?"
     if diff < 60:
         return f"{diff}s"
@@ -105,16 +122,17 @@ def reltime(ts: str) -> str:
         return f"{diff // 86400}d"
 
 
-def to_epoch(ts: str) -> int:
-    if not ts:
-        return 0
-    try:
-        return int(time.mktime(time.strptime(ts[:19], "%Y-%m-%dT%H:%M:%S")))
-    except ValueError:
-        return 0
+def to_epoch(ts: str) -> float:
+    return _parse_ts(ts) or 0.0
 
 
 def latest_ts_jsonl(d: Path) -> str:
+    """Newest timestamp among a project's session files.
+
+    Claude Code v2 jsonl files start with metadata lines that carry no
+    timestamp, so fall back to the file's mtime (last activity) there.
+    """
+    best_epoch = 0.0
     best = ""
     if not d.is_dir():
         return best
@@ -122,10 +140,14 @@ def latest_ts_jsonl(d: Path) -> str:
         try:
             obj = json.loads(f.open().readline())
             ts = obj.get("timestamp", "")
-            if ts and ts > best:
-                best = ts
         except Exception:
-            continue
+            ts = ""
+        if not ts:
+            ts = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(f.stat().st_mtime))
+        t = _parse_ts(ts)
+        if t is not None and t > best_epoch:
+            best_epoch = t
+            best = ts
     return best
 
 
@@ -212,8 +234,9 @@ def main():
         cc_c, cc_l = p["cc_count"], p["cc_last"]
 
         if QUERY and not QUERY.startswith("__"):
-            q = QUERY.lower()
-            if q not in name.lower() and q not in dir_path.lower():
+            # withspace=false passes the query with a possible leading space
+            q = QUERY.strip().lower()
+            if q and q not in name.lower() and q not in dir_path.lower():
                 continue
 
         sub_parts = []
@@ -239,6 +262,9 @@ def main():
                 "autocomplete": name,
                 "type": "file",
                 "icon": {"type": "fileicon", "path": dir_path},
+                # PROJECT_DIR env var flows down the PID-PROJ → PID-SESS connection,
+                # letting the sessions filter know the project while the user types
+                "variables": {"PROJECT_DIR": dir_path},
             }
         )
 

@@ -13,6 +13,7 @@ Output args:
   <session_file>|<agent>|<dir>      → resume session
 """
 
+import datetime
 import json
 import os
 import sys
@@ -27,7 +28,8 @@ CLAUDE_SESSIONS = HOME / ".claude" / "sessions"
 CLAUDE_PROJECTS = HOME / ".claude" / "projects"
 
 # ---- Config ----
-CONFIG_PATH = HOME / ".pi-agent-config.json"
+# All configuration comes from Alfred workflow environment variables
+# (Alfred → workflow → [x] → Variables). No config files on disk.
 _DEFAULT_AGENTS = {
     "pi": {"name": "pi", "icon": "🟢", "launch": "pi"},
     "claude": {"name": "Claude Code", "icon": "🟣", "launch": "claude"},
@@ -36,18 +38,16 @@ _DEFAULT_AGENTS = {
 
 def _load_config():
     cfg = {"defaultAgent": "pi", "agents": dict(_DEFAULT_AGENTS)}
-    if CONFIG_PATH.is_file():
-        try:
-            with open(CONFIG_PATH) as f:
-                user = json.load(f)
-            if "defaultAgent" in user:
-                cfg["defaultAgent"] = user["defaultAgent"]
-            if "agents" in user:
-                cfg["agents"] = {**cfg["agents"], **user["agents"]}
-        except Exception:
-            pass
     if os.environ.get("DEFAULT_AGENT"):
         cfg["defaultAgent"] = os.environ["DEFAULT_AGENT"]
+    agents_json = os.environ.get("AGENT_AGENTS", "").strip()
+    if agents_json:
+        try:
+            user = json.loads(agents_json)
+            if isinstance(user, dict):
+                cfg["agents"] = {**cfg["agents"], **user}
+        except Exception:
+            pass
     return cfg
 
 
@@ -71,13 +71,36 @@ def encode_cc(path: str) -> str:
     return "-" + path.lstrip("/").replace("/", "-")
 
 
-def reltime(ts: str) -> str:
+def _parse_ts(ts: str) -> float | None:
+    """Parse an ISO timestamp (with optional Z / offset) to local epoch seconds.
+
+    Handles both UTC timestamps ("...Z") and naive local ones; naive inputs are
+    interpreted as local time.
+    """
     if not ts:
+        return None
+    s = ts.strip()
+    if s.endswith("Z"):
+        s = s[:-1] + "+00:00"
+    try:
+        dt = datetime.datetime.fromisoformat(s)
+    except ValueError:
+        try:
+            dt = datetime.datetime.strptime(ts[:19], "%Y-%m-%dT%H:%M:%S")
+        except ValueError:
+            return None
+    if dt.tzinfo:
+        dt = dt.astimezone()
+    return dt.timestamp()
+
+
+def reltime(ts: str) -> str:
+    t = _parse_ts(ts)
+    if t is None:
         return "never"
     try:
-        t = time.mktime(time.strptime(ts[:19], "%Y-%m-%dT%H:%M:%S"))
         diff = int(time.time() - t)
-    except ValueError:
+    except (OSError, OverflowError):
         return "?"
     if diff < 60:
         return f"{diff}s"
@@ -90,13 +113,10 @@ def reltime(ts: str) -> str:
 
 
 def fmt_time(ts: str) -> str:
-    if not ts:
+    t = _parse_ts(ts)
+    if t is None:
         return "unknown"
-    try:
-        t = time.strptime(ts[:19], "%Y-%m-%dT%H:%M:%S")
-        return time.strftime("%b %d %H:%M", t)
-    except ValueError:
-        return ts[:16]
+    return time.strftime("%b %d %H:%M", time.localtime(t))
 
 
 def extract_title(filepath: Path) -> str:
@@ -158,6 +178,66 @@ def scan_pi_sessions(project_dir: str) -> list[dict]:
     return sessions
 
 
+def claude_meta(sf: Path) -> tuple[str, str, str, str]:
+    """Read a Claude Code v2 jsonl in one pass.
+
+    New-format files start with type-tagged metadata lines (ai-title,
+    agent-name, mode, ...) instead of a session header, and the first line has
+    no timestamp. Returns (ai_title, first_user_message, timestamp, sessionId):
+      - ai_title: Claude's own generated title (ai-title entry)
+      - first_user: first real user message, skipping system-injected ones
+        (<local-command-caveat>, <command-name>, <command-message>...)
+      - timestamp: first message timestamp found in the file, else file mtime
+    """
+    ai_title = ""
+    first_user = ""
+    ts = ""
+    sid = ""
+    try:
+        with open(sf) as f:
+            for i, line in enumerate(f):
+                if i > 250:
+                    break
+                try:
+                    obj = json.loads(line)
+                except (json.JSONDecodeError, ValueError):
+                    continue
+                if not sid and obj.get("sessionId"):
+                    sid = obj["sessionId"]
+                if not ts and obj.get("timestamp"):
+                    ts = obj["timestamp"]
+                if (
+                    not ai_title
+                    and obj.get("type") == "ai-title"
+                    and obj.get("aiTitle")
+                ):
+                    ai_title = obj["aiTitle"]
+                if not first_user and obj.get("type") == "user":
+                    m = obj.get("message") or {}
+                    content = m.get("content", "")
+                    if isinstance(content, str):
+                        if content.startswith("<"):
+                            continue  # system-injected: local-command-caveat etc.
+                        if content.strip():
+                            first_user = content.strip()[:80]
+                    elif isinstance(content, list):
+                        texts = [
+                            b.get("text", "")
+                            for b in content
+                            if isinstance(b, dict) and b.get("type") == "text"
+                        ]
+                        combined = " ".join(texts).strip()
+                        if combined and not combined.startswith("<"):
+                            first_user = combined[:80]
+                if ai_title and first_user:
+                    break  # title settled; timestamp falls back to mtime if absent
+    except OSError:
+        return "", "", "", ""
+    if not ts:
+        ts = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(sf.stat().st_mtime))
+    return ai_title, first_user, ts, sid
+
+
 def scan_claude_sessions(project_dir: str) -> list[dict]:
     name_lookup: dict[str, str] = {}
     status_lookup: dict[str, str] = {}
@@ -179,16 +259,10 @@ def scan_claude_sessions(project_dir: str) -> list[dict]:
 
     sessions = []
     for sf in sorted(proj_dir.glob("*.jsonl"), reverse=True):
-        try:
-            meta = json.loads(sf.open().readline())
-            ts = meta.get("timestamp", "")
-            sid = meta.get("sessionId", "")
-        except Exception:
-            ts, sid = "", ""
-
+        ai_title, first_user, ts, sid = claude_meta(sf)
         name = name_lookup.get(sid, "")
         active = " ⚡" if status_lookup.get(sid) == "busy" else ""
-        title = name or extract_title(sf) or fmt_time(ts)
+        title = ai_title or name or first_user or fmt_time(ts)
         sessions.append(
             {
                 "title": title,
@@ -204,10 +278,11 @@ def scan_claude_sessions(project_dir: str) -> list[dict]:
 # ── Agent List mode ──
 
 
-def show_agent_list(project_dir: str):
+def show_agent_list(project_dir: str, filter_text: str = ""):
     """Output agent list for starting a new session."""
     project_name = Path(project_dir).name
     agents = _load_config()["agents"]
+    q = filter_text.strip().lower()
     items = []
 
     items.append(
@@ -219,6 +294,8 @@ def show_agent_list(project_dir: str):
     )
 
     for aid, info in agents.items():
+        if q and q not in info.get("name", aid).lower() and q not in aid.lower():
+            continue
         items.append(
             {
                 "title": f"{info.get('icon', '📁')}  {info.get('name', aid)}",
@@ -233,8 +310,12 @@ def show_agent_list(project_dir: str):
 # ── Sessions mode ──
 
 
-def show_sessions(project_dir: str):
-    """Output session list for a project."""
+def show_sessions(project_dir: str, filter_text: str = ""):
+    """Output session list for a project, optionally client-filtered.
+
+    filter_text: typed by the user while the project dir sits in the input box;
+    the project itself travels via the project_dir env var (see main()).
+    """
     project_path = Path(project_dir)
     if not project_path.is_dir():
         print(
@@ -251,6 +332,7 @@ def show_sessions(project_dir: str):
     all_sessions = scan_pi_sessions(project_dir) + scan_claude_sessions(project_dir)
     all_sessions.sort(key=lambda s: s.get("ts", ""), reverse=True)
 
+    q = filter_text.strip().lower()
     default_agent = _default_agent()
     default_name = _agent_name(default_agent)
     items = []
@@ -284,6 +366,8 @@ def show_sessions(project_dir: str):
 
     # Sessions
     for s in all_sessions:
+        if q and q not in (s["title"] + " " + s["subtitle"]).lower():
+            continue
         aid = s["agent"]
         items.append(
             {
@@ -297,7 +381,9 @@ def show_sessions(project_dir: str):
     if len(items) == 2:
         items.append(
             {
-                "title": "No previous sessions yet",
+                "title": f"No matching sessions for “{filter_text.strip()}”"
+                if q
+                else "No previous sessions yet",
                 "subtitle": "Use ↑ Start new session to begin",
                 "valid": False,
             }
@@ -310,20 +396,44 @@ def show_sessions(project_dir: str):
 
 
 def main():
-    if not INPUT or INPUT == "none":
-        print(json.dumps({"items": [{"title": "No project selected", "valid": False}]}))
-        return
-
     if INPUT.startswith("__rerun__|"):
         parts = INPUT.split("|", 2)
         if len(parts) >= 3:
             mode = parts[1]
-            project_dir = parts[2]
+            rest = parts[2]
+            # The project dir rides along in the input, but with the sessions
+            # filter now re-running on every keystroke (argumenttype=1) the
+            # typed filter text is appended after it. PROJECT_DIR is still in
+            # the variable stream (Call External Trigger passes variables), so
+            # when it matches the embedded dir, treat the tail as the filter
+            # — this also keeps dirs containing spaces working.
+            env_dir = os.environ.get("PROJECT_DIR", "").strip()
+            if env_dir and (rest == env_dir or rest.startswith(env_dir + " ")):
+                filter_text = rest[len(env_dir) :].strip()
+                if mode == "agents":
+                    show_agent_list(env_dir, filter_text)
+                else:
+                    show_sessions(env_dir, filter_text)
+                return
             if mode == "agents":
-                show_agent_list(project_dir)
+                show_agent_list(rest)
             else:
-                show_sessions(project_dir)
+                show_sessions(rest)
             return
+
+    # Picked from the project list: the project travels via the PROJECT_DIR env
+    # var (connection variables through the external-trigger chain), while the
+    # input box stays clean so the user types a filter directly. The query may
+    # be the bare filter text, or (legacy path) the dir with the filter appended.
+    env_dir = os.environ.get("PROJECT_DIR", "").strip()
+    if env_dir:
+        rest = INPUT[len(env_dir) :] if INPUT.startswith(env_dir) else INPUT
+        show_sessions(env_dir, rest)
+        return
+
+    if not INPUT or INPUT == "none":
+        print(json.dumps({"items": [{"title": "No project selected", "valid": False}]}))
+        return
 
     show_sessions(INPUT)
 
