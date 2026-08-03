@@ -12,8 +12,9 @@ struct IconSpec {
 }
 
 let icons: [IconSpec] = [
-    IconSpec(name: "pi", symbol: "terminal", color: NSColor(calibratedRed: 0.20, green: 0.83, blue: 0.60, alpha: 1)),      // green
+    IconSpec(name: "pi", symbol: "pi", color: NSColor(calibratedRed: 0.20, green: 0.83, blue: 0.60, alpha: 1)),      // π, green
     IconSpec(name: "claude", symbol: "sparkles", color: NSColor(calibratedRed: 0.65, green: 0.55, blue: 0.98, alpha: 1)),  // purple
+    IconSpec(name: "agent", symbol: "cpu", color: NSColor(calibratedRed: 0.61, green: 0.64, blue: 0.69, alpha: 1)),  // grey, custom-agent fallback
     IconSpec(name: "new", symbol: "plus.circle", color: NSColor(calibratedRed: 0.98, green: 0.75, blue: 0.15, alpha: 1)), // amber
     IconSpec(name: "resume", symbol: "clock.arrow.circlepath", color: NSColor(calibratedRed: 0.38, green: 0.65, blue: 0.98, alpha: 1)), // blue
 ]
@@ -38,7 +39,8 @@ func render(_ spec: IconSpec, to dir: String) {
     NSColor(calibratedRed: 0.09, green: 0.10, blue: 0.13, alpha: 1).setFill()
     badge.fill()
 
-    // Symbol, tinted via alpha-mask clip
+    // Symbol, tinted via alpha-mask clip; falls back to drawing the π glyph
+    // for the "pi" symbol when the system symbol is unavailable.
     let target = NSRect(x: 40, y: 40, width: 176, height: 176)
     let cfg = NSImage.SymbolConfiguration(pointSize: 104, weight: .medium)
     if let img = NSImage(systemSymbolName: spec.symbol, accessibilityDescription: nil)?
@@ -51,6 +53,18 @@ func render(_ spec: IconSpec, to dir: String) {
             ctx.fill(target)
             ctx.restoreGState()
         }
+    } else if spec.symbol == "pi" {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        let attrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 150, weight: .medium),
+            .foregroundColor: spec.color,
+            .paragraphStyle: paragraph,
+        ]
+        let glyph = NSAttributedString(string: "π", attributes: attrs)
+        let bounds = glyph.boundingRect(with: target.size, options: [.usesLineFragmentOrigin])
+        glyph.draw(at: NSPoint(x: target.minX + (target.width - bounds.width) / 2,
+                               y: target.minY + (target.height - bounds.height) / 2))
     }
     NSGraphicsContext.restoreGraphicsState()
 

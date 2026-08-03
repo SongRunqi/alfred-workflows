@@ -31,8 +31,8 @@ CLAUDE_PROJECTS = HOME / ".claude" / "projects"
 # All configuration comes from Alfred workflow environment variables
 # (Alfred → workflow → [x] → Variables). No config files on disk.
 _DEFAULT_AGENTS = {
-    "pi": {"name": "pi", "icon": "🟢", "launch": "pi"},
-    "claude": {"name": "Claude Code", "icon": "🟣", "launch": "claude"},
+    "pi": {"name": "pi", "launch": "pi"},
+    "claude": {"name": "Claude Code", "launch": "claude"},
 }
 
 
@@ -57,7 +57,9 @@ def _agent_name(agent_id: str) -> str:
 
 def _agent_icon(agent_id: str) -> str:
     """Per-agent icon file (relative to the workflow root)."""
-    return {"pi": "icons/pi.png", "claude": "icons/claude.png"}.get(agent_id, "icons/claude.png")
+    return {"pi": "icons/pi.png", "claude": "icons/claude.png"}.get(
+        agent_id, "icons/agent.png"
+    )
 
 
 def _default_agent() -> str:

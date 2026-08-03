@@ -22,8 +22,8 @@ CLAUDE_PROJECTS = HOME / ".claude" / "projects"
 # All configuration comes from Alfred workflow environment variables
 # (Alfred → workflow → [x] → Variables). No config files on disk.
 _DEFAULT_AGENTS = {
-    "pi": {"name": "pi", "icon": "🟢", "launch": "pi"},
-    "claude": {"name": "Claude Code", "icon": "🟣", "launch": "claude"},
+    "pi": {"name": "pi", "launch": "pi"},
+    "claude": {"name": "Claude Code", "launch": "claude"},
 }
 
 

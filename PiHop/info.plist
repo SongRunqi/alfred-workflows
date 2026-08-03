@@ -712,7 +712,7 @@ Requires Alfred 5+.</string>
 	<key>variables</key>
 	<dict>
 		<key>AGENT_AGENTS</key>
-		<string>{"pi": {"name": "pi", "icon": "🟢", "launch": "pi"}, "claude": {"name": "Claude Code", "icon": "🟣", "launch": "claude"}}</string>
+		<string>{"pi": {"name": "pi", "launch": "pi"}, "claude": {"name": "Claude Code", "launch": "claude"}}</string>
 	</dict>
 	<key>version</key>
 	<string>1.1.0</string>
