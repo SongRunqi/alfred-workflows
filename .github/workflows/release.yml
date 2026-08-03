@@ -1,0 +1,48 @@
+name: Package & Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # allow manual runs
+
+permissions:
+  contents: write
+
+jobs:
+  package-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Package all workflows
+        run: bash scripts/package-all.sh
+
+      - name: Upload packages as artifacts (debug convenience)
+        uses: actions/upload-artifact@v4
+        with:
+          name: alfred-workflows
+          path: |
+            Glide.alfredworkflow
+            PiHop.alfredworkflow
+            Homebrew Manager.alfredworkflow
+            NetEase Music Controls.alfredworkflow
+            Settings.alfredworkflow
+          if-no-files-found: error
+
+      - name: Publish nightly release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Replace the previous nightly (release + its tag) so the Releases
+          # page always shows exactly one up-to-date prerelease.
+          gh release delete nightly --yes --cleanup-tag 2>/dev/null || true
+          gh release create nightly \
+            --prerelease \
+            --title "Nightly build" \
+            --notes "Auto-packaged on ${{ github.sha }} \
+            ($(date -u +%Y-%m-%dT%H:%MZ))." \
+            Glide.alfredworkflow \
+            PiHop.alfredworkflow \
+            "Homebrew Manager.alfredworkflow" \
+            "NetEase Music Controls.alfredworkflow" \
+            Settings.alfredworkflow
