@@ -46,10 +46,6 @@ def _agent_name(agent_id: str) -> str:
     return _load_config()["agents"].get(agent_id, {}).get("name", agent_id)
 
 
-def _agent_icon(agent_id: str) -> str:
-    return _load_config()["agents"].get(agent_id, {}).get("icon", "📁")
-
-
 # ---- Encode/decode ----
 
 
@@ -245,9 +241,10 @@ def main():
     if last_viewed and Path(last_viewed).is_file():
         items.append(
             {
-                "title": "📖 恢复上次浏览的会话",
+                "title": "恢复上次浏览的会话",
                 "subtitle": f"{Path(last_viewed).name[:70]}",
                 "arg": f"__view__|{last_viewed}",
+                "icon": {"path": "icons/resume.png"},
             }
         )
 
@@ -270,16 +267,9 @@ def main():
         flags = " ⚡" if p["active"] else ""
         subtitle = " | ".join(sub_parts) + f"  →  {dir_path}{flags}"
 
-        if pi_c > 0 and cc_c > 0:
-            icon = "🔀"
-        elif pi_c > 0:
-            icon = _agent_icon("pi")
-        else:
-            icon = _agent_icon("claude")
-
         items.append(
             {
-                "title": f"{icon}  {name}",
+                "title": name,
                 "subtitle": subtitle,
                 "arg": dir_path,
                 "autocomplete": name,

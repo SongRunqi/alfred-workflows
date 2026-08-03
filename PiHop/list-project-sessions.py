@@ -56,7 +56,8 @@ def _agent_name(agent_id: str) -> str:
 
 
 def _agent_icon(agent_id: str) -> str:
-    return _load_config()["agents"].get(agent_id, {}).get("icon", "📁")
+    """Per-agent icon file (relative to the workflow root)."""
+    return {"pi": "icons/pi.png", "claude": "icons/claude.png"}.get(agent_id, "icons/claude.png")
 
 
 def _default_agent() -> str:
@@ -310,9 +311,10 @@ def show_agent_list(project_dir: str, filter_text: str = ""):
             continue
         items.append(
             {
-                "title": f"{info.get('icon', '📁')}  {info.get('name', aid)}",
+                "title": info.get("name", aid),
                 "subtitle": f"Start a new {info.get('name', aid)} session in {project_name}",
                 "arg": f"__new__|{project_dir}|{aid}",
+                "icon": {"path": _agent_icon(aid)},
             }
         )
 
@@ -363,10 +365,10 @@ def show_sessions(project_dir: str, filter_text: str = ""):
     # directly to CallExternal → ExtSess → Sessions SF re-run with __rerun__|agents|dir
     items.append(
         {
-            "title": f"🎯  Start new session (default: {default_name})",
+            "title": f"Start new session (default: {default_name})",
             "subtitle": f"Enter = {default_name}  |  ⌘↵ = choose agent…",
             "arg": f"__new__|{project_dir}|{default_agent}",
-            "icon": {"path": str(project_path)},
+            "icon": {"path": "icons/new.png"},
             "mods": {
                 "cmd": {
                     "arg": f"__rerun__|agents|{project_dir}",
@@ -382,10 +384,10 @@ def show_sessions(project_dir: str, filter_text: str = ""):
             continue
         aid = s["agent"]
         item = {
-            "title": f"{_agent_icon(aid)}  {s['title']}",
+            "title": s["title"],
             "subtitle": s["subtitle"],
             "arg": s["arg"],
-            "icon": {"path": str(project_path)},
+            "icon": {"path": _agent_icon(aid)},
         }
         if s.get("mods"):
             item["mods"] = s["mods"]
