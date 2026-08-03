@@ -85,8 +85,8 @@ _session_is_busy() {
 	local f
 	for f in "$HOME"/.claude/sessions/*.json; do
 		[[ -f "$f" ]] || continue
-		if grep -q "\"sessionId\"[[:space:]]*:[[:space:]]*\"$sid\"" "$f" \
-			&& grep -q "\"status\"[[:space:]]*:[[:space:]]*\"busy\"" "$f"; then
+		if grep -q "\"sessionId\"[[:space:]]*:[[:space:]]*\"$sid\"" "$f" &&
+			grep -q "\"status\"[[:space:]]*:[[:space:]]*\"busy\"" "$f"; then
 			return 0
 		fi
 	done
@@ -216,13 +216,13 @@ Terminal | terminal)
 	termcmd="osascript -e 'tell application \"Terminal\" to activate' -e 'delay 0.2' -e 'tell application \"System Events\" to keystroke \"t\" using command down' -e 'delay 0.3' -e 'tell application \"Terminal\" to do script \"zsh $qf\" in front window' 2>/dev/null || osascript -e 'tell application \"Terminal\" to do script \"zsh $qf\"'"
 	;;
 kitty)
-termcmd="$(_launch_kitty "$qf")"
-;;
+	termcmd="$(_launch_kitty "$qf")"
+	;;
 ghostty)
-# No remote-control / tab API (as of 1.x) — open a new window via
-# ghostty's own -e flag through LaunchServices.
-termcmd="open -a ghostty --args -e zsh $qf"
-;;
+	# No remote-control / tab API (as of 1.x) — open a new window via
+	# ghostty's own -e flag through LaunchServices.
+	termcmd="open -a ghostty --args -e zsh $qf"
+	;;
 *)
 	if [[ -n "$terminal" && "$terminal" == *"{file}"* ]]; then
 		if [[ "${terminal%% *}" == "kitty" ]]; then
