@@ -12,6 +12,7 @@ double-click one to import into Alfred.
 | --- | --- | --- |
 | [Homebrew Manager](Homebrew%20Manager/) | `brew` | Manage Homebrew packages: search, install, uninstall, update, cleanup |
 | [NetEase Music Controls](netease-music-controls/) | — | Control NetEase Cloud Music (play/pause/next/like/volume) from Alfred |
+| [Glide](Glide/) | `maximize` `reasonable` `center` `topleft` … + `window` list | Maximize / reasonable / center / quarter tiles via keywords (hotkeys ⌃⌥⌘M R C 7 9 1 3 optional) |
 | [agent-session](agent-session/) | — | Launch pi-coding-agent projects/sessions from Alfred |
 | [System Settings](System%20Settings/) | — | Search and open macOS System Settings panes |
 
