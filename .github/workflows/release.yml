@@ -27,6 +27,9 @@ jobs:
             Homebrew Manager.alfredworkflow
             NetEase Music Controls.alfredworkflow
             Settings.alfredworkflow
+            Application Shortcuts.alfredworkflow
+            Pulse.alfredworkflow
+            versions.json
           if-no-files-found: error
 
       - name: Publish nightly release
@@ -45,4 +48,6 @@ jobs:
             PiHop.alfredworkflow \
             "Homebrew Manager.alfredworkflow" \
             "NetEase Music Controls.alfredworkflow" \
-            Settings.alfredworkflow
+            Settings.alfredworkflow \
+            "Application Shortcuts.alfredworkflow" \
+            Pulse.alfredworkflow

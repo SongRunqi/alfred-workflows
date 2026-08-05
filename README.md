@@ -15,6 +15,8 @@ double-click one to import into Alfred.
 | [Glide](Glide/) | `maximize` `reasonable` `center` `topleft` … + `window` list | Maximize / reasonable / center / quarter tiles via keywords (add your own hotkeys — triggers ship unbound) | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/Glide.alfredworkflow) |
 | [PiHop](PiHop/) | `hop` | Hop into pi / Claude Code agent sessions by project — resume in your terminal (iTerm / kitty / ghostty…), ⌥ browse a session in a Text View, restore the last-viewed session | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/PiHop.alfredworkflow) |
 | [System Settings](System%20Settings/) | — | Search and open macOS System Settings panes | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/Settings.alfredworkflow) |
+| [Application Shortcuts](ApplicationShortcuts/) | `app` | Hyper-key app launcher: 36 hotkey slots, configurable terminal/browser, `app` menu | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/Application%20Shortcuts.alfredworkflow) |
+| [Pulse](Pulse/) | `update` | Check installed workflows against the repo manifest and update them via Alfred's import flow (Hyper+U for a silent check) | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/Pulse.alfredworkflow) |
 
 > ⬇️ 点击下载 `.alfredworkflow`，双击导入 Alfred。
 

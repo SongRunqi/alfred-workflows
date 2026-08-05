@@ -23,6 +23,8 @@ PACKAGES=(
 	"Glide|Glide"
 	"PiHop|PiHop"
 	"System Settings|Settings"
+	"ApplicationShortcuts|Application Shortcuts"
+	"Pulse|Pulse"
 )
 
 # Dev files that must never ship inside a package.
@@ -70,3 +72,10 @@ print(f\"  OK  {d['name']}  v{d.get('version', '?')}\")
 	}
 done
 echo "All packages verified."
+
+# --- 2. versions.json manifest (consumed by the Pulse updater workflow) ---
+# Regenerate after every packaging run so raw/main/versions.json always
+# matches the shipped packages; commit it together with the packages.
+echo
+echo "=== regenerate versions.json ==="
+bash scripts/gen-manifest.sh

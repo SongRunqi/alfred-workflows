@@ -1,0 +1,63 @@
+{
+  "repo": "SongRunqi/alfred-workflows",
+  "branch": "main",
+  "updated": "2026-08-05 16:21:54 +0800",
+  "workflows": [
+    {
+      "name": "Homebrew Manager",
+      "bundleid": "com.songyitian.brew",
+      "version": "1.0.0",
+      "file": "Homebrew Manager.alfredworkflow",
+      "sha256": "50bd46d924d98a395a9f0eb95fccc091cde66fa7278cfc89cb16efdad87269d0",
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Homebrew%20Manager.alfredworkflow"
+    },
+    {
+      "name": "NetEase Music Controls",
+      "bundleid": "com.yitiansong.alfred.netease-music-controls",
+      "version": "2.0.1",
+      "file": "NetEase Music Controls.alfredworkflow",
+      "sha256": "aa94930dc2e18d478a6aecae2b465d31c494fae3b8860ca182f8e9419acbbe78",
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/NetEase%20Music%20Controls.alfredworkflow"
+    },
+    {
+      "name": "Glide",
+      "bundleid": "com.songyitian.glide",
+      "version": "1.7.0",
+      "file": "Glide.alfredworkflow",
+      "sha256": "19f14aefb0110e92360d2cad146a9bf54a909ca9a33d894045321fc5afc59ba2",
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Glide.alfredworkflow"
+    },
+    {
+      "name": "PiHop",
+      "bundleid": "com.yt.pi-agent",
+      "version": "1.1.1",
+      "file": "PiHop.alfredworkflow",
+      "sha256": "7a775e00efc4844edffacbf83a73a75e1b58b130fe19ca9e59bfa2c6f310a948",
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/PiHop.alfredworkflow"
+    },
+    {
+      "name": "Settings",
+      "bundleid": "com.songyitian.settings",
+      "version": "1.0.0",
+      "file": "Settings.alfredworkflow",
+      "sha256": "e9a150f5273170b437f4b34468b73c4f912ceebaa358003501f93abff18d4acd",
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Settings.alfredworkflow"
+    },
+    {
+      "name": "application shortcuts",
+      "bundleid": "com.srq.application",
+      "version": "2.0.0",
+      "file": "Application Shortcuts.alfredworkflow",
+      "sha256": "0147ea6ac5d65054e2a8bdccbf5bc9655c50ad07e03499667959c924eb8070c5",
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Application%20Shortcuts.alfredworkflow"
+    },
+    {
+      "name": "Pulse",
+      "bundleid": "com.songyitian.pulse",
+      "version": "1.0.0",
+      "file": "Pulse.alfredworkflow",
+      "sha256": "42825aed6e23f5deb2e60aaadd822ca11f8e2ef0868c1ddf97199386ed26c69b",
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Pulse.alfredworkflow"
+    }
+  ]
+}
