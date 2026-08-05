@@ -1,7 +1,7 @@
 {
   "repo": "SongRunqi/alfred-workflows",
   "branch": "main",
-  "updated": "2026-08-05 16:28:56 +0800",
+  "updated": "2026-08-05 16:39:44 +0800",
   "workflows": [
     {
       "name": "Homebrew Manager",
@@ -14,9 +14,9 @@
     {
       "name": "NetEase Music Controls",
       "bundleid": "com.yitiansong.alfred.netease-music-controls",
-      "version": "2.0.1",
+      "version": "2.0.2",
       "file": "NetEase Music Controls.alfredworkflow",
-      "sha256": "8149bf25a1ffb28987a05d56afba87c900762aa1336212426b6f60a0fc6a5d34",
+      "sha256": "49814f97b4b378fa02344dea8d9c8de807b5e008509dca1a81b5d4e8676abe69",
       "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/NetEase%20Music%20Controls.alfredworkflow"
     },
     {
@@ -30,9 +30,9 @@
     {
       "name": "PiHop",
       "bundleid": "com.yt.pi-agent",
-      "version": "1.1.1",
+      "version": "1.1.2",
       "file": "PiHop.alfredworkflow",
-      "sha256": "111bf89449021ed611f32a53e40da242f64f382f023de7367a57ea37390ae09a",
+      "sha256": "464aab9cd318239e5ebf496f996d7574bf7191b26213d04858139eac6982aa93",
       "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/PiHop.alfredworkflow"
     },
     {

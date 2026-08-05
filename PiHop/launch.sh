@@ -71,7 +71,7 @@ _launch_kitty() {
 		# subshell, so a variable can't escape) → launch.sh stdout →
 		# Alfred Notification node.
 		print -r -- "kitty 未启用远程控制：请在 kitty.conf 添加 listen_on unix:/tmp/kitty-{kitty_pid}.sock 和 allow_remote_control yes，保存后退出并重新打开 kitty 一次，之后会话都会开新 tab" >"$KITTY_HINT_FILE" 2>/dev/null
-		echo "true"  # no-op command; the hint is emitted by the caller
+		echo "true" # no-op command; the hint is emitted by the caller
 	else
 		# no kitty at all → a new instance is the correct behavior
 		echo "open -n -a kitty --args $kitty_args zsh $qf"
