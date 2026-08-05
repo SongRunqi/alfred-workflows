@@ -25,7 +25,6 @@ import re
 import subprocess
 import sys
 import time
-import urllib.request
 from itertools import zip_longest
 from pathlib import Path
 from typing import Any
@@ -195,14 +194,25 @@ def installed_workflows() -> dict:
 
 
 def fetch_manifest() -> dict | None:
-    """Fetch the versions.json manifest. None on any failure."""
+    """Fetch the versions.json manifest via curl (system certs, timeout).
+
+    urllib is deliberately avoided: homebrew python on macOS fails TLS
+    verification against raw.githubusercontent (CERTIFICATE_VERIFY_FAILED)
+    while curl uses the system trust store and tolerates bare host:port
+    proxy vars. None on any failure.
+    """
     url = manifest_url(config())
     if dry():
         return None
     try:
-        with urllib.request.urlopen(url, timeout=8) as r:
-            return json.loads(r.read().decode("utf-8"))
-    except Exception:
+        r = subprocess.run(["curl", "-sS", "--max-time", "8", "-L", url],
+                           capture_output=True, text=True, timeout=15)
+        if r.returncode != 0 or not r.stdout.strip():
+            log(f"manifest fetch FAILED ({r.returncode}): {r.stderr.strip()[:120]}")
+            return None
+        return json.loads(r.stdout)
+    except Exception as e:
+        log(f"manifest fetch error: {e}")
         return None
 
 
@@ -410,8 +420,28 @@ def notify_summary() -> None:
 # ---------------------------------------------------------------- updater ---
 
 
+def log(line: str) -> None:
+    """Append a timestamped line to pulse.log (debugging remote issues)."""
+    p = data_dir() / "pulse.log"
+    try:
+        with p.open("a") as f:
+            f.write(f"{time.strftime('%H:%M:%S')} {line}\n")
+    except OSError:
+        pass
+
+
+def _fix_proxy_env() -> None:
+    """GUI-launched processes can inherit bare 'host:port' proxy vars (e.g.
+    iTerm/launchd http_proxy=127.0.0.1:7890); urllib builds an invalid URL
+    from them and hangs. Add the scheme back before any network call."""
+    for name in ("http_proxy", "https_proxy", "HTTP_PROXY", "HTTPS_PROXY"):
+        v = os.environ.get(name, "")
+        if v and "://" not in v:
+            os.environ[name] = "http://" + v
+
+
 def _download(name: str, url: str, sha256: str) -> Path | None:
-    """Download + verify. Returns the file path, or None on failure."""
+    """Download (with timeout) + verify. Returns the file path, or None."""
     if not url:
         say(f"{name}: 清单缺少下载地址")
         return None
@@ -420,17 +450,24 @@ def _download(name: str, url: str, sha256: str) -> Path | None:
     if dry():
         print(f"[dry] download {url} → {dest}")
         return dest
+    log(f"download {name} ← {url}")
     try:
-        urllib.request.urlretrieve(url, dest)
+        r = subprocess.run(["curl", "-sS", "--max-time", "60", "-L",
+                            "-o", str(dest), url], timeout=75)
+        if r.returncode != 0:
+            raise OSError(f"curl exit {r.returncode}")
     except Exception as e:
+        log(f"download FAILED {name}: {e}")
         say(f"✗ {name}: 下载失败（{e}）")
         return None
     if sha256:
         actual = hashlib.sha256(dest.read_bytes()).hexdigest()
         if actual.lower() != sha256.lower():
+            log(f"checksum MISMATCH {name}: {actual[:16]} != {sha256[:16]}")
             say(f"✗ {name}: 校验和不匹配，已拒绝安装")
             dest.unlink(missing_ok=True)
             return None
+    log(f"download OK {name} ({dest.stat().st_size} bytes, sha256 ok)")
     return dest
 
 
@@ -470,7 +507,7 @@ def do_update(specs: list, download_only: bool = False) -> None:
 # ------------------------------------------------------------------- main ---
 
 
-def main() -> None:
+def _dispatch() -> None:
     argv = sys.argv[1:]
     cmd = argv[0] if argv else "filter"
 
@@ -492,6 +529,16 @@ def main() -> None:
         do_update(specs, download_only=(cmd == "download"))
     else:
         say("Pulse: filter | notify | check | update | download")
+
+
+def main() -> None:
+    _fix_proxy_env()
+    try:
+        _dispatch()
+    except Exception as e:
+        # never fail silently — surface the error via the notification node
+        print(f"⚠ Pulse 内部错误：{e}")
+        log(f"internal error: {e}")
 
 
 if __name__ == "__main__":

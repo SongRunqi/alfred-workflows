@@ -343,7 +343,7 @@ Pulse 更新时先更新自己：新版发布后 `update` 里同样会出现 Pul
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>1.0.0</string>
+	<string>1.0.1</string>
 	<key>webaddress</key>
 	<string></string>
 </dict>
