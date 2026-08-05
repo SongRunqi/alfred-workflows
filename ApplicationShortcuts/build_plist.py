@@ -39,24 +39,29 @@ KEYCODE = {  # ANSI layout
 }
 
 
-def uid() -> str:
-    return str(uuid.uuid4()).upper()
+# Deterministic uids (uuid5): rebuilding the plist yields byte-identical
+# output, so the tracked info.plist never churns on every build.
+_NS = uuid.uuid5(uuid.NAMESPACE_URL, "com.srq.application")
+
+
+def uid(name: str) -> str:
+    return str(uuid.uuid5(_NS, name)).upper()
 
 
 def hotkey_uid(k):
-    return uid()
+    return uid(f"hk:{k}")
 
 
 def lf_uid(k):
-    return uid()
+    return uid(f"lf:{k}")
 
 
 def scr_uid(k):
-    return uid()
+    return uid(f"scr:{k}")
 
 
-launch_uid = uid()
-sf_uid = uid()
+launch_uid = uid("launch")
+sf_uid = uid("filter")
 
 objects = []
 
