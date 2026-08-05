@@ -28,17 +28,24 @@ def icon(name: str) -> str:
 
 # (hotkey, category, title, subtitle, arg, icon-name)
 ROWS = [
-    ("Hyper+1", "AI",   "ChatGPT",      "启动或切换",            "ChatGPT", "ChatGPT"),
-    ("Hyper+2", "终端", term,           "可配置 · Configure Workflow…", "terminal", term),
-    ("Hyper+B", "浏览器", brow,          "可配置 · Configure Workflow…", "browser", brow),
-    ("Hyper+C", "AI",   "Claude",       "启动或切换",            "Claude", "Claude"),
-    ("Hyper+D", "聊天", "Discord",      "启动或切换",            "Discord", "Discord"),
-    ("Hyper+F", "系统", "Finder",       "启动或切换",            "Finder", "Finder"),
-    ("Hyper+M", "聊天", "WeChat",       "启动或切换",            "WeChat", "WeChat"),
-    ("Hyper+N", "笔记", "Obsidian",     "启动或切换",            "Obsidian", "Obsidian"),
-    ("Hyper+W", "笔记", "Obsidian · 工作笔记", "~/data/note/workbook", "Obsidian|~/data/note/workbook", "Obsidian"),
-    ("Hyper+Z", "开发", "Zed",          "启动或切换",            "Zed", "Zed"),
-    ("⌥⇧S",    "查询", "Easydict",     "选中文本查询",          "Easydict", "Easydict"),
+    ("Hyper+1", "AI", "ChatGPT", "启动或切换", "ChatGPT", "ChatGPT"),
+    ("Hyper+2", "终端", term, "可配置 · Configure Workflow…", "terminal", term),
+    ("Hyper+B", "浏览器", brow, "可配置 · Configure Workflow…", "browser", brow),
+    ("Hyper+C", "AI", "Claude", "启动或切换", "Claude", "Claude"),
+    ("Hyper+D", "聊天", "Discord", "启动或切换", "Discord", "Discord"),
+    ("Hyper+F", "系统", "Finder", "启动或切换", "Finder", "Finder"),
+    ("Hyper+M", "聊天", "WeChat", "启动或切换", "WeChat", "WeChat"),
+    ("Hyper+N", "笔记", "Obsidian", "启动或切换", "Obsidian", "Obsidian"),
+    (
+        "Hyper+W",
+        "笔记",
+        "Obsidian · 工作笔记",
+        "~/data/note/workbook",
+        "Obsidian|~/data/note/workbook",
+        "Obsidian",
+    ),
+    ("Hyper+Z", "开发", "Zed", "启动或切换", "Zed", "Zed"),
+    ("⌥⇧S", "查询", "Easydict", "选中文本查询", "Easydict", "Easydict"),
 ]
 
 items = [
@@ -53,14 +60,16 @@ items = [
     for i, (hk, cat, name, sub, arg, icon_name) in enumerate(ROWS)
 ]
 
-items.append({
-    "uid": "config-hint",
-    "title": "切换终端 / 浏览器",
-    "subtitle": "Workflows → application shortcuts → Configure Workflow… · 双击任意热键可重新录制",
-    "arg": "",
-    "match": "config 配置 终端 浏览器",
-    "valid": False,
-    "icon": {"path": "icon.png"},
-})
+items.append(
+    {
+        "uid": "config-hint",
+        "title": "切换终端 / 浏览器",
+        "subtitle": "Workflows → application shortcuts → Configure Workflow… · 双击任意热键可重新录制",
+        "arg": "",
+        "match": "config 配置 终端 浏览器",
+        "valid": False,
+        "icon": {"path": "icon.png"},
+    }
+)
 
 print(json.dumps({"items": items}, ensure_ascii=False))
