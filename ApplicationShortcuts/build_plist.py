@@ -242,32 +242,64 @@ for k, target in lf.items():
 #   (gap)
 #   ⌥⇧S            ──────►  easydict script
 #
-# Every edge is a short horizontal/diagonal line — nothing crosses the canvas.
+# Row spacing ROW=140 keeps every object clear of its neighbours (Alfred's
+# hotkey blocks are ~100px tall). check_layout() below asserts that no two
+# bounding boxes intersect, so a layout change can never regress into
+# overlapping objects.
 
 HX, TX = 40, 280  # hotkey column x, action column x
+ROW = 140         # vertical step between consecutive rows
 
-# category blocks: (label, y0, [keys], row height 90)
+# category blocks: (label, y0, [keys]); y0 of the first row
 BLOCKS = [
     ("AI", 40, ["1", "c"]),
-    ("终端/浏览器", 280, ["2", "b"]),
-    ("聊天", 700, ["m", "d"]),
-    ("笔记", 930, ["n", "w"]),
-    ("开发/系统", 1160, ["z", "f"]),
-    ("查询", 1390, ["s"]),
+    ("终端/浏览器", 400, ["2", "b"]),
+    ("聊天", 800, ["m", "d"]),
+    ("笔记", 1200, ["n", "w"]),
+    ("开发/系统", 1600, ["z", "f"]),
+    ("查询", 2000, ["s"]),
 ]
 uidata = {}
 for _label, y0, keys in BLOCKS:
     for i, k in enumerate(keys):
-        y = y0 + i * 90
+        y = y0 + i * ROW
         uidata[hk[k]] = {"xpos": HX, "ypos": y}
         if k in lf:
             uidata[lf[k]] = {"xpos": TX, "ypos": y}
         if k in scr:
             uidata[scr[k]] = {"xpos": TX, "ypos": y}
-# shared launch node sits between the two 终端/浏览器 rows
-uidata[launch_uid] = {"xpos": TX, "ypos": 325}
-# app menu input sits under that block, edge to launch.sh stays short
-uidata[sf_uid] = {"xpos": HX, "ypos": 520}
+# shared launch node sits between the two 终端/浏览器 rows (400 + 140/2)
+uidata[launch_uid] = {"xpos": TX, "ypos": 470}
+# app menu input sits in the gap below the block, edge to launch.sh stays short
+uidata[sf_uid] = {"xpos": HX, "ypos": 680}
+
+# --- layout sanity check: no two bounding boxes may intersect -------------------
+# Conservative block sizes (Alfred's real blocks are smaller):
+#   hotkey 140x100 · launchfiles 200x90 · script 180x90 · scriptfilter 200x110
+SIZES = {
+    "alfred.workflow.trigger.hotkey": (140, 100),
+    "alfred.workflow.action.launchfiles": (200, 90),
+    "alfred.workflow.action.script": (180, 90),
+    "alfred.workflow.input.scriptfilter": (200, 110),
+}
+
+
+def check_layout(objects_: list, uidata_: dict) -> None:
+    boxes = []
+    for o in objects_:
+        uid_ = o["uid"]
+        pos = uidata_.get(uid_)
+        if pos is None:
+            continue
+        w, h = SIZES[o["type"]]
+        boxes.append((uid_, pos["xpos"], pos["ypos"], pos["xpos"] + w, pos["ypos"] + h))
+    for i, (u1, x1, y1, x2, y2) in enumerate(boxes):
+        for u2, x3, y3, x4, y4 in boxes[i + 1:]:
+            if x1 < x4 and x3 < x2 and y1 < y4 and y3 < y2:
+                raise SystemExit(f"LAYOUT OVERLAP: {u1} ({x1},{y1}) overlaps {u2} ({x3},{y3})")
+
+
+check_layout(objects, uidata)
 
 # --- Metadata ---------------------------------------------------------------------
 README = """## application shortcuts · v2
