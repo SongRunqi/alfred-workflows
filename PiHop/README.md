@@ -37,6 +37,17 @@ steps. Sessions resumed from a Claude background agent (`claude agents`)
 are detected and automatically **forked** (`--fork-session`) with a notice,
 instead of claude exiting with a cryptic message.
 
+## Agent binary resolution
+
+The session script runs under the terminal's **non-interactive**
+environment, whose `PATH` often lacks user bins (`~/.local/bin/claude`,
+`~/.bun/bin/…`). Instead of guessing install locations, PiHop asks your
+interactive login shell (`zsh -lic 'command -v <agent>'`) where the agent
+lives and pins the **absolute path** into the generated command
+(`/Users/you/.local/bin/claude --resume …`), with a fallback scan of
+common locations. A failed resolution posts a PiHop notification instead
+of a bare `command not found` inside the terminal.
+
 ## Behavior notes
 
 - Resuming a session opens the terminal (frontmost when the app supports

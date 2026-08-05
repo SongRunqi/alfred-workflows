@@ -93,6 +93,27 @@ _session_is_busy() {
 	return 1
 }
 
+# ---- agent binary resolution ----
+# The .command file runs under the terminal's NON-interactive environment,
+# whose PATH lacks user bins (~/.local/bin/claude, ~/.bun/bin/…). Rather
+# than guessing install locations, ask the user's interactive login shell
+# where the agent lives and pin the ABSOLUTE path into the command.
+# Falls back to a scan of common locations, then the bare name (the
+# terminal then shows the real error).
+_resolve_agent() {
+	local a="$1" bin=""
+	bin="$(zsh -lic "command -v $a" 2>/dev/null \
+		| sed $'s/\x1b\][^\x07]*\x07//g; s/\x1b\[[0-9;]*[a-zA-Z]//g' \
+		| grep '^/' | tail -1)"
+	if [[ -z "$bin" || ! -x "$bin" ]]; then
+		for p in "$HOME/.local/bin/$a" "$HOME/.pi/agent/bin/$a" \
+			"$HOME/.bun/bin/$a" /opt/homebrew/bin/$a /usr/local/bin/$a; do
+			[[ -x "$p" ]] && { bin="$p"; break; }
+		done
+	fi
+	echo "${bin:-$a}"
+}
+
 # ---- parse ----
 local dir="" agent="" mode="" session_file=""
 local IFS='|'
@@ -133,6 +154,18 @@ if [[ "$mode" == "finder" && -z "$agent" ]]; then
 	agent="${DEFAULT_AGENT:-pi}"
 fi
 
+# ---- resolve agent binary ----
+# Anything but claude/cc runs pi, so resolve the binary of the agent that
+# will actually launch. A failed resolution is surfaced as a notification
+# instead of a bare "command not found" inside the terminal.
+local resolve_name="pi"
+[[ "$agent" == "claude" || "$agent" == "cc" ]] && resolve_name="claude"
+local agent_bin
+agent_bin="$(_resolve_agent "$resolve_name")"
+if [[ "$agent_bin" != /* ]]; then
+	osascript -e "display notification \"找不到 $resolve_name 可执行文件（$agent_bin）— 请检查安装或 PATH\" with title \"PiHop\"" >/dev/null 2>&1 &
+fi
+
 # ---- resolve dir ----
 if [[ "$mode" == "finder" ]]; then
 	dir=$(osascript -e 'tell application "Finder" to if (count of windows) > 0 then POSIX path of (target of front window as alias)' 2>/dev/null || echo "$HOME")
@@ -157,22 +190,22 @@ claude | cc)
 		sid=$(head -1 "$session_file" | python3 -c "import sys,json; print(json.load(sys.stdin).get('sessionId',''))" 2>/dev/null || true)
 		if [[ -n "$sid" ]]; then
 			if _session_is_busy "$sid"; then
-				cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}（原会话在后台运行，已分支副本）' && claude --resume '${sid}' --fork-session; exec \${SHELL:-/bin/zsh}"
+				cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}（原会话在后台运行，已分支副本）' && \"${(q)agent_bin}\" --resume '${sid}' --fork-session; exec \${SHELL:-/bin/zsh}"
 			else
-				cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}' && claude --resume '${sid}'; exec \${SHELL:-/bin/zsh}"
+				cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}' && \"${(q)agent_bin}\" --resume '${sid}'; exec \${SHELL:-/bin/zsh}"
 			fi
 		else
-			cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}' && claude --continue; exec \${SHELL:-/bin/zsh}"
+			cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}' && \"${(q)agent_bin}\" --continue; exec \${SHELL:-/bin/zsh}"
 		fi
 	else
-		cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}' && claude; exec \${SHELL:-/bin/zsh}"
+		cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}' && \"${(q)agent_bin}\"; exec \${SHELL:-/bin/zsh}"
 	fi
 	;;
 *)
 	if [[ "$mode" == "resume" && -f "$session_file" ]]; then
-		cmd="cd ${(q)dir} && clear && echo '🟢 pi — ${name}' && pi --session ${(q)session_file}; exec \${SHELL:-/bin/zsh}"
+		cmd="cd ${(q)dir} && clear && echo '🟢 pi — ${name}' && \"${(q)agent_bin}\" --session ${(q)session_file}; exec \${SHELL:-/bin/zsh}"
 	else
-		cmd="cd ${(q)dir} && clear && echo '🟢 pi — ${name}' && pi; exec \${SHELL:-/bin/zsh}"
+		cmd="cd ${(q)dir} && clear && echo '🟢 pi — ${name}' && \"${(q)agent_bin}\"; exec \${SHELL:-/bin/zsh}"
 	fi
 	;;
 esac
