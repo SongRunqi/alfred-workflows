@@ -8,13 +8,15 @@ double-click one to import into Alfred.
 
 ## Workflows
 
-| Workflow | Keyword | What it does |
-| --- | --- | --- |
-| [Homebrew Manager](Homebrew%20Manager/) | `brew` | Manage Homebrew packages: search, install, uninstall, update, cleanup |
-| [NetEase Music Controls](netease-music-controls/) | — | Control NetEase Cloud Music (play/pause/next/like/volume) from Alfred |
-| [Glide](Glide/) | `maximize` `reasonable` `center` `topleft` … + `window` list | Maximize / reasonable / center / quarter tiles via keywords (hotkeys ⌃⌥⌘M R C 7 9 1 3 optional) |
-| [PiHop](PiHop/) | `hop` | Hop into pi / Claude Code agent sessions by project — resume in your terminal (iTerm / kitty / ghostty…), ⌥ browse a session in a Text View, restore the last-viewed session |
-| [System Settings](System%20Settings/) | — | Search and open macOS System Settings panes |
+| Workflow | Keyword | What it does | Download |
+| --- | --- | --- | --- |
+| [Homebrew Manager](Homebrew%20Manager/) | `brew` | Manage Homebrew packages: search, install, uninstall, update, cleanup | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/Homebrew%20Manager.alfredworkflow) |
+| [NetEase Music Controls](netease-music-controls/) | — | Control NetEase Cloud Music (play/pause/next/like/volume) from Alfred | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/NetEase%20Music%20Controls.alfredworkflow) |
+| [Glide](Glide/) | `maximize` `reasonable` `center` `topleft` … + `window` list | Maximize / reasonable / center / quarter tiles via keywords (add your own hotkeys — triggers ship unbound) | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/Glide.alfredworkflow) |
+| [PiHop](PiHop/) | `hop` | Hop into pi / Claude Code agent sessions by project — resume in your terminal (iTerm / kitty / ghostty…), ⌥ browse a session in a Text View, restore the last-viewed session | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/PiHop.alfredworkflow) |
+| [System Settings](System%20Settings/) | — | Search and open macOS System Settings panes | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/Settings.alfredworkflow) |
+
+> ⬇️ 点击下载 `.alfredworkflow`，双击导入 Alfred。
 
 ## Install
 
