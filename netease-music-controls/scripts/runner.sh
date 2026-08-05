@@ -11,7 +11,8 @@ ACTION="${1:-}"
 # ---------------------------------------------------------------------------
 run_applescript() {
 	local snippet="$1"
-	osascript -e "
+	local out rc=0
+	out=$(osascript -e "
     -- Locate or launch NetEase Music
     set procName to missing value
     tell application \"System Events\"
@@ -47,7 +48,15 @@ run_applescript() {
         ${snippet}
       end tell
     end tell
-  "
+  " 2>&1) || rc=$?
+	if [[ $rc -ne 0 ]]; then
+		# The Run Script action shows nothing on failure — surface it as a
+		# notification so silent failures stop being silent.
+		local msg
+		msg=$(printf '%s' "$out" | tr -d '"')
+		osascript -e "display notification \"${msg}\" with title \"NetEase Music Controls\"" 2>/dev/null || true
+		return $rc
+	fi
 }
 
 # ---------------------------------------------------------------------------
@@ -72,6 +81,7 @@ click_control() {
       end if
       if done then exit repeat
     end repeat
+    if not done then error "menu item not found"
 EOF
 	)
 	run_applescript "$snippet"
@@ -99,6 +109,7 @@ click_view() {
       end if
       if done then exit repeat
     end repeat
+    if not done then error "menu item not found"
 EOF
 	)
 	run_applescript "$snippet"
@@ -132,6 +143,7 @@ click_repeat() {
       end if
       if done then exit repeat
     end repeat
+    if not done then error "repeat menu item not found"
 EOF
 	)
 	run_applescript "$snippet"
@@ -162,8 +174,16 @@ turn-down-volume)
 	click_control '"Decrease Volume", "Volume Down", "减小音量", "调低音量"'
 	;;
 
-like | dislike)
-	click_control '"Like", "Love", "Favorite", "Dislike", "Unlike", "Cancel Like", "喜欢", "红心", "添加到我喜欢的音乐", "取消喜欢", "取消红心", "不喜欢"'
+like)
+	# Like-first: if the track is already liked the menu shows the unlike
+	# entry, so this doubles as a toggle.
+	click_control '"Like", "Love", "Favorite", "喜欢", "红心", "添加到我喜欢的音乐", "Dislike", "Unlike", "Cancel Like", "取消喜欢", "取消红心", "不喜欢"'
+	;;
+
+dislike)
+	# Dislike-first: unmark the track. Like entries are only a fallback so the
+	# action never silently no-ops when the menu uses "like" wording.
+	click_control '"Dislike", "Unlike", "Cancel Like", "不喜欢", "取消喜欢", "取消红心", "不感兴趣", "Like", "Love", "Favorite", "喜欢", "红心", "添加到我喜欢的音乐"'
 	;;
 
 toggle-shuffle)
