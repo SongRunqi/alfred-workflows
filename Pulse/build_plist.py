@@ -17,7 +17,7 @@ from pathlib import Path
 HERE = Path(__file__).parent
 
 HYPER = 1966080  # ⌃⌥⇧⌘ — Karabiner Hyper chord
-KEYCODE_U = 32   # ANSI 'u'
+KEYCODE_U = 32  # ANSI 'u'
 
 
 def uid(name: str) -> str:
@@ -28,6 +28,7 @@ sf_uid = uid("filter")
 update_uid = uid("update")
 hk_uid = uid("hotkey")
 notify_uid = uid("notify")
+notif_uid = uid("notification")
 
 objects = [
     # `update` script filter
@@ -101,6 +102,20 @@ objects = [
         "uid": notify_uid,
         "version": 2,
     },
+    # Alfred's own notification (script stdout → {query}); fed by both
+    # the updater and the Hyper+U check, shown only when there is output.
+    {
+        "config": {
+            "lastpathcomponent": False,
+            "onlyshowifquerypopulated": True,
+            "removeextension": False,
+            "text": "{query}",
+            "title": "Pulse",
+        },
+        "type": "alfred.workflow.output.notification",
+        "uid": notif_uid,
+        "version": 1,
+    },
 ]
 
 
@@ -116,6 +131,8 @@ def edge(dest):
 connections = {
     sf_uid: [edge(update_uid)],
     hk_uid: [edge(notify_uid)],
+    update_uid: [edge(notif_uid)],
+    notify_uid: [edge(notif_uid)],
 }
 
 uidata = {
@@ -123,6 +140,7 @@ uidata = {
     update_uid: {"xpos": 280, "ypos": 40},
     hk_uid: {"xpos": 40, "ypos": 200},
     notify_uid: {"xpos": 280, "ypos": 200},
+    notif_uid: {"xpos": 560, "ypos": 120},
 }
 
 README = """## Pulse
@@ -181,16 +199,24 @@ plist = {
             "variable": "PULSE_REPO",
             "label": "仓库 (owner/repo)",
             "description": "versions.json 所在仓库，默认 SongRunqi/alfred-workflows",
-            "config": {"default": "", "placeholder": "SongRunqi/alfred-workflows",
-                       "required": False, "trim": True},
+            "config": {
+                "default": "",
+                "placeholder": "SongRunqi/alfred-workflows",
+                "required": False,
+                "trim": True,
+            },
         },
         {
             "type": "textfield",
             "variable": "PULSE_BRANCH",
             "label": "分支",
             "description": "默认 main",
-            "config": {"default": "", "placeholder": "main",
-                       "required": False, "trim": True},
+            "config": {
+                "default": "",
+                "placeholder": "main",
+                "required": False,
+                "trim": True,
+            },
         },
     ],
     "objects": objects,

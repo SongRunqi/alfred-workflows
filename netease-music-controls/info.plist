@@ -8,6 +8,19 @@
 	<string>Media</string>
 	<key>connections</key>
 	<dict>
+		<key>0D1E1140-ABBF-4390-9DD8-7F9339A4F21C</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>NMC-NOTI</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>0E4CCEB0-EEE8-48E9-A0A8-DB577A090670</key>
 		<array>
 			<dict>
@@ -47,6 +60,32 @@
 				<false/>
 			</dict>
 		</array>
+		<key>3AAAA11C-E1C3-4E30-AA67-CEA34B56374C</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>NMC-NOTI</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>4C934070-5DC9-44AE-8ADA-0EB435D57E14</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>NMC-NOTI</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>55F3AE36-A5CE-4CD8-8AA0-F7D655BB134F</key>
 		<array>
 			<dict>
@@ -60,11 +99,50 @@
 				<false/>
 			</dict>
 		</array>
+		<key>5EDC97ED-8B32-427D-B3EA-ACCAF2A31E75</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>NMC-NOTI</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>6E51C805-F9BF-4435-88E0-115BD1FE18F1</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
 				<string>4C934070-5DC9-44AE-8ADA-0EB435D57E14</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>717FE221-E1F6-4254-ACB1-74B51BB6A1B4</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>NMC-NOTI</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>73F789DF-36B6-4039-9BB4-97BF907E663E</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>NMC-NOTI</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -99,6 +177,32 @@
 				<false/>
 			</dict>
 		</array>
+		<key>9C6ED090-06E5-4C4E-A78F-6177F3AB3C16</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>NMC-NOTI</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>A88AFAD9-4A05-4D91-ACF4-10322785A342</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>NMC-NOTI</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>C3450D58-630F-42F7-B835-2A6D08E2EF53</key>
 		<array>
 			<dict>
@@ -117,6 +221,19 @@
 			<dict>
 				<key>destinationuid</key>
 				<string>9C6ED090-06E5-4C4E-A78F-6177F3AB3C16</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>E508D7EF-A4EF-49D3-BEF3-B9A73F3F49A5</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>NMC-NOTI</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -532,6 +649,27 @@
 			<key>version</key>
 			<integer>2</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<true/>
+				<key>removeextension</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>NetEase Music Controls</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>NMC-NOTI</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string>Direct keywords: play / next / prev / volup / voldn / like / dislike / shuffle / repeat1</string>
@@ -662,6 +800,13 @@
 			<real>280.0</real>
 			<key>ypos</key>
 			<real>250.0</real>
+		</dict>
+		<key>NMC-NOTI</key>
+		<dict>
+			<key>xpos</key>
+			<integer>900</integer>
+			<key>ypos</key>
+			<integer>400</integer>
 		</dict>
 	</dict>
 	<key>variables</key>

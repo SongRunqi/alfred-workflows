@@ -67,7 +67,11 @@ _launch_kitty() {
 		# kitty IS running but has no controllable socket (old instance
 		# started before listen_on was added, or a broken one). NEVER pile
 		# up another window on top of the user's — tell them instead.
-		echo "osascript -e 'display notification \"kitty 未启用远程控制：请在 kitty.conf 添加 listen_on unix:/tmp/kitty-{kitty_pid}.sock 和 allow_remote_control yes，保存后退出并重新打开 kitty 一次，之后会话都会开新 tab\" with title \"PiHop\"'"
+		# The hint rides a temp file (command substitution runs in a
+		# subshell, so a variable can't escape) → launch.sh stdout →
+		# Alfred Notification node.
+		print -r -- "kitty 未启用远程控制：请在 kitty.conf 添加 listen_on unix:/tmp/kitty-{kitty_pid}.sock 和 allow_remote_control yes，保存后退出并重新打开 kitty 一次，之后会话都会开新 tab" >"$KITTY_HINT_FILE" 2>/dev/null
+		echo "true"  # no-op command; the hint is emitted by the caller
 	else
 		# no kitty at all → a new instance is the correct behavior
 		echo "open -n -a kitty --args $kitty_args zsh $qf"
@@ -166,7 +170,8 @@ local resolve_name="pi"
 local agent_bin
 agent_bin="$(_resolve_agent "$resolve_name")"
 if [[ "$agent_bin" != /* ]]; then
-	osascript -e "display notification \"找不到 $resolve_name 可执行文件（$agent_bin）— 请检查安装或 PATH\" with title \"PiHop\"" >/dev/null 2>&1 &
+	# surfaced via launch.sh stdout → Alfred Notification node
+	echo "找不到 $resolve_name 可执行文件（$agent_bin）— 请检查安装或 PATH"
 fi
 
 # ---- resolve dir ----
@@ -215,6 +220,10 @@ esac
 
 # ---- resolve terminal (Alfred workflow env var) ----
 local terminal="${AGENT_TERMINAL:-}"
+
+# channel for the kitty no-remote-control hint (function runs in a
+# subshell via command substitution, so a temp file carries the message)
+KITTY_HINT_FILE="$(mktemp /tmp/pihop-kitty-hint.XXXXXX 2>/dev/null || echo /tmp/pihop-kitty-hint.$$)"
 
 # ---- launch ----
 local tmpfile="/tmp/agent-session-$$.command"
@@ -280,6 +289,13 @@ if [[ -n "${AGENT_SESSION_TEST:-}" ]]; then
 	exit 0
 fi
 
-(eval "$termcmd") &
+# kitty hint (if any) goes to stdout → Alfred Notification node; the
+# terminal commands themselves must stay silent so only our messages show.
+if [[ -s "$KITTY_HINT_FILE" ]]; then
+	cat "$KITTY_HINT_FILE"
+fi
+rm -f "$KITTY_HINT_FILE"
+
+(eval "$termcmd" >/dev/null 2>&1) &
 # safety net only: the script self-deletes once running
-(sleep 60 && rm -f "$tmpfile") &
+(sleep 60 && rm -f "$tmpfile") >/dev/null 2>&1 &

@@ -26,19 +26,18 @@ import subprocess
 import sys
 import time
 import urllib.request
-from contextlib import suppress
 from itertools import zip_longest
 from pathlib import Path
 from typing import Any
 
 BUNDLE_ID = "com.songyitian.pulse"
-TITLE = "Pulse"
 
 DEFAULT_REPO = "SongRunqi/alfred-workflows"
 DEFAULT_BRANCH = "main"
 
 
 # ---------------------------------------------------------------- helpers ---
+
 
 def data_dir() -> Path:
     for env in ("PULSE_DATA", "alfred_workflow_data"):
@@ -89,13 +88,9 @@ def save_cache(cache: dict) -> None:
     os.replace(tmp, p)
 
 
-def notify(msg: str, title: str = TITLE) -> None:
-    esc = msg.replace("\\", "\\\\").replace('"', '\\"')
-    esc_t = title.replace("\\", "\\\\").replace('"', '\\"')
-    with suppress(Exception):
-        subprocess.run(
-            ["osascript", "-e", f'display notification "{esc}" with title "{esc_t}"'],
-            capture_output=True, timeout=5)
+def say(msg: str) -> None:
+    """Print to stdout → Alfred Notification node (Alfred's own notifications)."""
+    print(msg)
 
 
 def dry() -> bool:
@@ -103,6 +98,7 @@ def dry() -> bool:
 
 
 # ------------------------------------------------------------ version math ---
+
 
 def _as_int(tok: str) -> int | None:
     try:
@@ -133,7 +129,9 @@ def version_newer(remote: str, installed: str) -> bool:
     """True when remote is strictly newer than installed (missing = older)."""
     if not installed:
         return bool(remote)
-    for x, y in zip_longest(parse_version(remote), parse_version(installed), fillvalue=""):
+    for x, y in zip_longest(
+        parse_version(remote), parse_version(installed), fillvalue=""
+    ):
         c = _tok_cmp(x, y)
         if c:
             return c > 0
@@ -142,13 +140,15 @@ def version_newer(remote: str, installed: str) -> bool:
 
 # ------------------------------------------------------------ installed scan ---
 
+
 def scan_dirs() -> list:
     env = os.environ.get("PULSE_SCAN_DIRS")
     if env:
         return [Path(p) for p in env.split(",") if p]
     return [
         Path.home() / "data/sync/alfred/Alfred.alfredpreferences/workflows",
-        Path.home() / "Library/Application Support/Alfred/Alfred.alfredpreferences/workflows",
+        Path.home()
+        / "Library/Application Support/Alfred/Alfred.alfredpreferences/workflows",
     ]
 
 
@@ -193,6 +193,7 @@ def installed_workflows() -> dict:
 
 # ---------------------------------------------------------------- manifest ---
 
+
 def fetch_manifest() -> dict | None:
     """Fetch the versions.json manifest. None on any failure."""
     url = manifest_url(config())
@@ -206,6 +207,7 @@ def fetch_manifest() -> dict | None:
 
 
 # ------------------------------------------------------------------ check ---
+
 
 def check() -> dict:
     """Fresh check: scan installed ∪ manifest, compare, write cache.
@@ -232,20 +234,24 @@ def check() -> dict:
         remote = str(wf.get("version") or "")
         icon = local.get("icon") or "icon.png"
         if remote and version_newer(remote, local.get("version", "")):
-            updates.append({
-                "name": wf.get("name", bid),
-                "installed": local.get("version", ""),
-                "remote": remote,
-                "url": wf.get("url", ""),
-                "sha256": wf.get("sha256", ""),
-                "icon": icon,
-            })
+            updates.append(
+                {
+                    "name": wf.get("name", bid),
+                    "installed": local.get("version", ""),
+                    "remote": remote,
+                    "url": wf.get("url", ""),
+                    "sha256": wf.get("sha256", ""),
+                    "icon": icon,
+                }
+            )
         else:
-            latest.append({
-                "name": wf.get("name", bid),
-                "version": local.get("version") or remote or "?",
-                "icon": icon,
-            })
+            latest.append(
+                {
+                    "name": wf.get("name", bid),
+                    "version": local.get("version") or remote or "?",
+                    "icon": icon,
+                }
+            )
 
     cache = {
         "ok": True,
@@ -260,10 +266,24 @@ def check() -> dict:
 
 # ----------------------------------------------------------- script filter ---
 
-def item(uid: str, title: str, subtitle: str, arg: str, icon: str = "",
-         valid: bool = True, mods: dict | None = None) -> dict:
-    it = {"uid": uid, "title": title, "subtitle": subtitle, "arg": arg,
-          "valid": valid, "match": f"{title} {subtitle}"}
+
+def item(
+    uid: str,
+    title: str,
+    subtitle: str,
+    arg: str,
+    icon: str = "",
+    valid: bool = True,
+    mods: dict | None = None,
+) -> dict:
+    it = {
+        "uid": uid,
+        "title": title,
+        "subtitle": subtitle,
+        "arg": arg,
+        "valid": valid,
+        "match": f"{title} {subtitle}",
+    }
     if icon:
         it["icon"] = {"path": icon}
     if mods:
@@ -276,11 +296,25 @@ def filter_json() -> None:
     items = []
 
     if not result.get("ok"):
-        items.append(item("err", "⚠ 检查失败（网络或清单不可用）",
-                          "回车重试", "refresh", valid=False))
+        items.append(
+            item(
+                "err",
+                "⚠ 检查失败（网络或清单不可用）",
+                "回车重试",
+                "refresh",
+                valid=False,
+            )
+        )
         for u in result.get("updates", []):
-            items.append(item(f"cached-{u['name']}", f"{u['name']}  {u['installed']} → {u['remote']}",
-                              f"上次结果（{result.get('checked', '?')}）", "update", valid=False))
+            items.append(
+                item(
+                    f"cached-{u['name']}",
+                    f"{u['name']}  {u['installed']} → {u['remote']}",
+                    f"上次结果（{result.get('checked', '?')}）",
+                    "update",
+                    valid=False,
+                )
+            )
         print(json.dumps({"items": items}, ensure_ascii=False))
         return
 
@@ -290,54 +324,96 @@ def filter_json() -> None:
     if updates:
         names = "、".join(u["name"] for u in updates[:3])
         more = f" 等 {len(updates)} 个" if len(updates) > 3 else ""
-        items.append(item("head", f"⚡ {len(updates)} 个工作流可更新",
-                          f"{names}{more} · 回车更新 · ⌘回车仅下载", "", valid=False))
+        items.append(
+            item(
+                "head",
+                f"⚡ {len(updates)} 个工作流可更新",
+                f"{names}{more} · 回车更新 · ⌘回车仅下载",
+                "",
+                valid=False,
+            )
+        )
         for u in updates:
             arg = f"{u['name']}|{u['url']}|{u['sha256']}"
-            items.append(item(
-                f"up-{u['name']}",
-                f"{u['name']}  {u['installed'] or '?'} → {u['remote']}",
-                "回车：更新（Alfred 确认替换）· ⌘回车：仅下载",
-                arg, u.get("icon", ""),
-                mods={"cmd": {"arg": f"dl|{arg}", "subtitle": "仅下载，不导入"}}))
-        items.append(item("all", "全部更新", f"逐个下载并交给 Alfred 确认（{len(updates)} 个）",
-                          "all", valid=False))
+            items.append(
+                item(
+                    f"up-{u['name']}",
+                    f"{u['name']}  {u['installed'] or '?'} → {u['remote']}",
+                    "回车：更新（Alfred 确认替换）· ⌘回车：仅下载",
+                    arg,
+                    u.get("icon", ""),
+                    mods={"cmd": {"arg": f"dl|{arg}", "subtitle": "仅下载，不导入"}},
+                )
+            )
+        items.append(
+            item(
+                "all",
+                "全部更新",
+                f"逐个下载并交给 Alfred 确认（{len(updates)} 个）",
+                "all",
+                valid=False,
+            )
+        )
     else:
-        items.append(item("head", "✓ 全部已是最新",
-                          f"检查于 {result.get('checked', '?')}", "", valid=False))
+        items.append(
+            item(
+                "head",
+                "✓ 全部已是最新",
+                f"检查于 {result.get('checked', '?')}",
+                "",
+                valid=False,
+            )
+        )
 
     for lf in latest:
-        items.append(item(f"ok-{lf['name']}", f"✓ {lf['name']}  {lf['version']}",
-                          "已是最新", "", lf.get("icon", ""), valid=False))
+        items.append(
+            item(
+                f"ok-{lf['name']}",
+                f"✓ {lf['name']}  {lf['version']}",
+                "已是最新",
+                "",
+                lf.get("icon", ""),
+                valid=False,
+            )
+        )
 
     if not updates and not latest:
-        items.append(item("none", "没有需要检查的工作流",
-                          "清单里没有已安装的工作流", "", valid=False))
+        items.append(
+            item(
+                "none",
+                "没有需要检查的工作流",
+                "清单里没有已安装的工作流",
+                "",
+                valid=False,
+            )
+        )
 
     print(json.dumps({"items": items}, ensure_ascii=False))
 
 
 # -------------------------------------------------------------- notify mode ---
 
+
 def notify_summary() -> None:
     result = check()
     if not result.get("ok"):
-        notify("检查失败（网络或清单不可用），输入 update 重试")
+        say("⚠ 检查失败（网络或清单不可用），输入 update 重试")
         return
     updates = result.get("updates", [])
     if updates:
         names = "、".join(u["name"] for u in updates)
-        notify(f"{len(updates)} 个工作流可更新：{names}\n输入 update 查看并更新")
+        say(f"⚡ {len(updates)} 个工作流可更新：{names}\n输入 update 查看并更新")
     else:
-        notify(f"✓ 全部已是最新（{result.get('checked', '')}）")
+        say(f"✓ 全部已是最新（{result.get('checked', '')}）")
 
 
 # ---------------------------------------------------------------- updater ---
 
+
 def _download(name: str, url: str, sha256: str) -> Path | None:
     """Download + verify. Returns the file path, or None on failure."""
     if not url:
-        notify(f"{name}: 清单缺少下载地址")
+        say(f"{name}: 清单缺少下载地址")
         return None
     dest = data_dir() / "downloads" / Path(url).name
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -347,12 +423,12 @@ def _download(name: str, url: str, sha256: str) -> Path | None:
     try:
         urllib.request.urlretrieve(url, dest)
     except Exception as e:
-        notify(f"{name}: 下载失败（{e}）")
+        say(f"✗ {name}: 下载失败（{e}）")
         return None
     if sha256:
         actual = hashlib.sha256(dest.read_bytes()).hexdigest()
         if actual.lower() != sha256.lower():
-            notify(f"{name}: 校验和不匹配，已拒绝安装")
+            say(f"✗ {name}: 校验和不匹配，已拒绝安装")
             dest.unlink(missing_ok=True)
             return None
     return dest
@@ -364,7 +440,7 @@ def do_update(specs: list, download_only: bool = False) -> None:
         result = check()
         specs = [(u["name"], u["url"], u["sha256"]) for u in result.get("updates", [])]
         if not specs:
-            notify("没有可更新的工作流")
+            say("✓ 没有可更新的工作流")
             return
 
     done, failed = [], []
@@ -386,12 +462,13 @@ def do_update(specs: list, download_only: bool = False) -> None:
 
     if done:
         verb = "已下载" if download_only else "已下载并校验，等待确认替换"
-        notify(f"{verb}：{'、'.join(done)}\nAlfred 将弹出导入确认")
+        say(f"✓ {verb}：{'、'.join(done)}\nAlfred 将弹出导入确认")
     if failed:
-        notify(f"失败：{'、'.join(failed)}")
+        say(f"✗ 失败：{'、'.join(failed)}")
 
 
 # ------------------------------------------------------------------- main ---
+
 
 def main() -> None:
     argv = sys.argv[1:]
@@ -406,7 +483,7 @@ def main() -> None:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     elif cmd in ("update", "download"):
         specs = []
-        for part in (argv[1:] or ["all"]):
+        for part in argv[1:] or ["all"]:
             fields = part.split("|")
             if len(fields) >= 3:
                 specs.append((fields[0], fields[1], fields[2]))
@@ -414,7 +491,7 @@ def main() -> None:
                 specs.append((fields[0], "", ""))
         do_update(specs, download_only=(cmd == "download"))
     else:
-        notify("Pulse: filter | notify | check | update | download")
+        say("Pulse: filter | notify | check | update | download")
 
 
 if __name__ == "__main__":

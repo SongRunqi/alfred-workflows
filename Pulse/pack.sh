@@ -22,7 +22,10 @@ unzip -q "$OUT" -d "$TMPU"
 (cd "$TMPU" && ls -l | grep -v '^total')
 plutil -lint "$TMPU/info.plist"
 for f in pulse.py filter.sh update.sh notify.sh; do
-	[[ -x "$TMPU/$f" ]] || { echo "ERROR: $f lost +x in package!"; exit 1; }
+	[[ -x "$TMPU/$f" ]] || {
+		echo "ERROR: $f lost +x in package!"
+		exit 1
+	}
 done
 rm -rf "$TMPU"
 echo "✓ All executables keep +x inside the package. Ready to release."

@@ -3,5 +3,5 @@
 # ("dl|" prefix = ⌘-Enter → download only, no import dialog).
 case "$1" in
 dl\|*) exec "$(dirname "$0")/pulse.py" download "${1#dl|}" ;;
-*)     exec "$(dirname "$0")/pulse.py" update "$1" ;;
+*) exec "$(dirname "$0")/pulse.py" update "$1" ;;
 esac

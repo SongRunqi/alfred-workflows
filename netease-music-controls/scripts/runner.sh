@@ -50,11 +50,11 @@ run_applescript() {
     end tell
   " 2>&1) || rc=$?
 	if [[ $rc -ne 0 ]]; then
-		# The Run Script action shows nothing on failure — surface it as a
-		# notification so silent failures stop being silent.
+		# The Run Script action shows nothing on failure — surface it via
+		# stdout → Alfred Notification node so failures stop being silent.
 		local msg
 		msg=$(printf '%s' "$out" | tr -d '"')
-		osascript -e "display notification \"${msg}\" with title \"NetEase Music Controls\"" 2>/dev/null || true
+		echo "${msg}"
 		return $rc
 	fi
 }
