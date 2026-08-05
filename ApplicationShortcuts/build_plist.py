@@ -248,7 +248,7 @@ for k, target in lf.items():
 # overlapping objects.
 
 HX, TX = 40, 280  # hotkey column x, action column x
-ROW = 140         # vertical step between consecutive rows
+ROW = 140  # vertical step between consecutive rows
 
 # category blocks: (label, y0, [keys]); y0 of the first row
 BLOCKS = [
@@ -294,9 +294,11 @@ def check_layout(objects_: list, uidata_: dict) -> None:
         w, h = SIZES[o["type"]]
         boxes.append((uid_, pos["xpos"], pos["ypos"], pos["xpos"] + w, pos["ypos"] + h))
     for i, (u1, x1, y1, x2, y2) in enumerate(boxes):
-        for u2, x3, y3, x4, y4 in boxes[i + 1:]:
+        for u2, x3, y3, x4, y4 in boxes[i + 1 :]:
             if x1 < x4 and x3 < x2 and y1 < y4 and y3 < y2:
-                raise SystemExit(f"LAYOUT OVERLAP: {u1} ({x1},{y1}) overlaps {u2} ({x3},{y3})")
+                raise SystemExit(
+                    f"LAYOUT OVERLAP: {u1} ({x1},{y1}) overlaps {u2} ({x3},{y3})"
+                )
 
 
 check_layout(objects, uidata)

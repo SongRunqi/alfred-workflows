@@ -102,13 +102,16 @@ _session_is_busy() {
 # terminal then shows the real error).
 _resolve_agent() {
 	local a="$1" bin=""
-	bin="$(zsh -lic "command -v $a" 2>/dev/null \
-		| sed $'s/\x1b\][^\x07]*\x07//g; s/\x1b\[[0-9;]*[a-zA-Z]//g' \
-		| grep '^/' | tail -1)"
+	bin="$(zsh -lic "command -v $a" 2>/dev/null |
+		sed $'s/\x1b\][^\x07]*\x07//g; s/\x1b\[[0-9;]*[a-zA-Z]//g' |
+		grep '^/' | tail -1)"
 	if [[ -z "$bin" || ! -x "$bin" ]]; then
 		for p in "$HOME/.local/bin/$a" "$HOME/.pi/agent/bin/$a" \
 			"$HOME/.bun/bin/$a" /opt/homebrew/bin/$a /usr/local/bin/$a; do
-			[[ -x "$p" ]] && { bin="$p"; break; }
+			[[ -x "$p" ]] && {
+				bin="$p"
+				break
+			}
 		done
 	fi
 	echo "${bin:-$a}"
