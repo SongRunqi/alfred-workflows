@@ -14,8 +14,9 @@ Type `brew` in Alfred:
 | Key | Action |
 | ----- | -------- |
 | ⏎ | Show package info (installed) / Install (available) |
-| ⌘⏎ | Uninstall package |
-| ⌥⏎ | Upgrade package |
+| ⌘⏎ | Upgrade package |
+| ⌥⏎ | Uninstall package |
+| ⌃⏎ | Open package homepage |
 
 ## Requirements
 

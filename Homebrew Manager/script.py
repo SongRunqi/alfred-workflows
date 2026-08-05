@@ -10,6 +10,7 @@ Type `brew`:
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import subprocess
@@ -87,6 +88,7 @@ def load_outdated(brew: str) -> set[str]:
             OUTDATED_CACHE.unlink(missing_ok=True)
 
     outdated: set[str] = set()
+    ok = False
     for args in (["outdated", "--formula"], ["outdated", "--cask"]):
         try:
             r = subprocess.run(
@@ -96,6 +98,7 @@ def load_outdated(brew: str) -> set[str]:
                 timeout=20,
             )
             if r.returncode == 0:
+                ok = True
                 for line in r.stdout.splitlines():
                     name = line.strip().split()[0] if line.strip() else ""
                     if name:
@@ -103,14 +106,17 @@ def load_outdated(brew: str) -> set[str]:
         except Exception as exc:
             log(f"outdated error ({args}): {exc}")
 
-    OUTDATED_CACHE.write_text(
-        json.dumps(
-            {
-                "names": sorted(outdated),
-                "updated": time.time(),
-            }
+    # Only refresh the cache when at least one query succeeded — a failure
+    # must not silently wipe the previous (possibly stale but real) state.
+    if ok:
+        OUTDATED_CACHE.write_text(
+            json.dumps(
+                {
+                    "names": sorted(outdated),
+                    "updated": time.time(),
+                }
+            )
         )
-    )
     return outdated
 
 
@@ -137,10 +143,8 @@ def load_available_names(brew: str) -> tuple[list[str], list[str]]:
         except Exception as exc:
             log(f"load_available({cmd}) error: {exc}")
             if cp.exists():
-                try:
+                with contextlib.suppress(Exception):
                     target.extend(cp.read_text().splitlines())
-                except Exception:
-                    pass  # noqa: SIM105
     return formulae, casks
 
 
@@ -224,18 +228,18 @@ def build(query: str) -> Items:
     mode: str | None = None
     rest_query = ""
 
-    if ql.startswith(MODE_INSTALLED + " "):
+    if ql == MODE_INSTALLED:
+        mode = MODE_INSTALLED
+        rest_query = ""
+    elif ql.startswith(MODE_INSTALLED + " "):
         mode = MODE_INSTALLED
         rest_query = query[len(MODE_INSTALLED) :].strip()
-    elif ql.startswith(MODE_INSTALLED):
-        mode = MODE_INSTALLED
+    elif ql == MODE_SEARCH:
+        mode = MODE_SEARCH
         rest_query = ""
     elif ql.startswith(MODE_SEARCH + " "):
         mode = MODE_SEARCH
         rest_query = query[len(MODE_SEARCH) :].strip()
-    elif ql.startswith(MODE_SEARCH):
-        mode = MODE_SEARCH
-        rest_query = ""
     elif query:
         # bare query → treat as search
         mode = MODE_SEARCH

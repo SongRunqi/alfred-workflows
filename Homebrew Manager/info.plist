@@ -85,7 +85,7 @@
 				<key>type</key>
 				<integer>8</integer>
 				<key>withspace</key>
-				<true/>
+				<false/>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.input.scriptfilter</string>
@@ -147,16 +147,18 @@ Search, install, upgrade and manage Homebrew packages from Alfred.
 ## Usage
 
 Type `brew` in Alfred:
-- **\&lt;empty\&gt;** — quick actions: update, upgrade all, cleanup, doctor
-- **brew \&lt;query\&gt;** — search installed and available packages
+- **&lt;empty&gt;** — quick actions: update, upgrade all, cleanup, doctor
+- **brew &lt;query&gt;** — search installed and available packages
+- **brew !i &lt;query&gt;** — browse installed packages only
 
 ## Actions
 
 | Key | Action |
 |-----|--------|
 | ⏎ | Show package info (installed) / Install (available) |
-| ⌘⏎ | Uninstall package |
-| ⌥⏎ | Upgrade package |
+| ⌘⏎ | Upgrade package |
+| ⌥⏎ | Uninstall package |
+| ⌃⏎ | Open package homepage |
 
 ## Requirements
 
