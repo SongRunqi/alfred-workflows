@@ -205,8 +205,12 @@ def fetch_manifest() -> dict | None:
     if dry():
         return None
     try:
-        r = subprocess.run(["curl", "-sS", "--max-time", "8", "-L", url],
-                           capture_output=True, text=True, timeout=15)
+        r = subprocess.run(
+            ["curl", "-sS", "--max-time", "8", "-L", url],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
         if r.returncode != 0 or not r.stdout.strip():
             log(f"manifest fetch FAILED ({r.returncode}): {r.stderr.strip()[:120]}")
             return None
@@ -452,8 +456,9 @@ def _download(name: str, url: str, sha256: str) -> Path | None:
         return dest
     log(f"download {name} ← {url}")
     try:
-        r = subprocess.run(["curl", "-sS", "--max-time", "60", "-L",
-                            "-o", str(dest), url], timeout=75)
+        r = subprocess.run(
+            ["curl", "-sS", "--max-time", "60", "-L", "-o", str(dest), url], timeout=75
+        )
         if r.returncode != 0:
             raise OSError(f"curl exit {r.returncode}")
     except Exception as e:
