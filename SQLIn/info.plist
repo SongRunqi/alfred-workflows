@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>bundleid</key>
+	<string>com.songyitian.sqlin</string>
+	<key>category</key>
+	<string>Tools</string>
+	<key>connections</key>
+	<dict>
+		<key>29082E24-828C-547D-A8F8-4F966112B808</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>D5C9370A-D923-5113-838E-7E064C611A5B</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>B420029A-D2BD-56B3-9FD9-EDA595EB8973</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>D5C9370A-D923-5113-838E-7E064C611A5B</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>D5C9370A-D923-5113-838E-7E064C611A5B</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>D392356A-777D-5943-8122-E5CEBF628DA6</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+	</dict>
+	<key>createdby</key>
+	<string>Songyitian</string>
+	<key>description</key>
+	<string>选中的文本 / 剪贴板里的 ID 列表 → SQL IN 子句</string>
+	<key>disabled</key>
+	<false/>
+	<key>name</key>
+	<string>SQL In</string>
+	<key>objects</key>
+	<array>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>keyword</key>
+				<string>in</string>
+				<key>subtext</key>
+				<string>剪贴板里的 ID 生成 SQL IN 子句 · 可跟参数如 in 1,2,3</string>
+				<key>text</key>
+				<string>SQL In</string>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>B420029A-D2BD-56B3-9FD9-EDA595EB8973</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>acceptsfiles</key>
+				<false/>
+				<key>acceptsmulti</key>
+				<false/>
+				<key>acceptstext</key>
+				<true/>
+				<key>acceptsurls</key>
+				<false/>
+				<key>name</key>
+				<string>SQL In</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.trigger.universalaction</string>
+			<key>uid</key>
+			<string>29082E24-828C-547D-A8F8-4F966112B808</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>script</key>
+				<string></string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string>sql_in.py</string>
+				<key>type</key>
+				<integer>8</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>D5C9370A-D923-5113-838E-7E064C611A5B</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<true/>
+				<key>removeextension</key>
+				<false/>
+				<key>text</key>
+				<string>{query}</string>
+				<key>title</key>
+				<string>SQL In</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>D392356A-777D-5943-8122-E5CEBF628DA6</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>readme</key>
+	<string>## SQL In
+
+把选中的文本 / 剪贴板（或关键词后直接粘贴）里的一堆 ID 变成 SQL `IN (...)` 子句，
+自动复制回剪贴板，方便粘贴进查询语句。
+
+### 用法
+
+| 操作 | 效果 |
+| --- | --- |
+| 选中 ID 文本 → ⌘/ → 选 **SQL In** | 选中的文本 → 生成 `IN (…)` → 复制回剪贴板 + 通知 |
+| 复制 ID 后输入 `in` | 读取剪贴板 → 生成 `IN (…)` → 复制回剪贴板 + 通知 |
+| `in 1 2 3` / `in 1,2,3` | 直接使用输入的 ID（优先于剪贴板） |
+
+**Text Action（推荐）**：在任意应用里选中 ID（Excel、网页、SQL 编辑器都行），
+按 Universal Actions 热键（默认 ⌘/）→ 选 SQL In 即生成，不需要切到 Alfred。
+若热键无效，先到 Alfred → Features → Universal Actions 里确认设置。
+
+ID 之间的分隔符随意：空格、换行、逗号、分号、制表符都行。
+重复 ID 自动去重，顺序保留。
+
+### 自动识别类型
+
+- 全部是纯数字 → `IN (1, 2, 3)`（不加引号）
+- 含有非数字（如 `ord123`、`uuid`）→ 全部加单引号 `IN ('a', 'b')`
+  （字符串里的单引号自动转义为 `''`）
+- 从 SQL 里复制出来的带引号 ID 会先剥掉引号再处理
+
+### 自定义
+
+想换关键词：Alfred → Workflows → SQL In → 双击 Keyword 对象改 `in` 即可。
+</string>
+	<key>uidata</key>
+	<dict>
+		<key>29082E24-828C-547D-A8F8-4F966112B808</key>
+		<dict>
+			<key>xpos</key>
+			<integer>40</integer>
+			<key>ypos</key>
+			<integer>200</integer>
+		</dict>
+		<key>B420029A-D2BD-56B3-9FD9-EDA595EB8973</key>
+		<dict>
+			<key>xpos</key>
+			<integer>40</integer>
+			<key>ypos</key>
+			<integer>40</integer>
+		</dict>
+		<key>D392356A-777D-5943-8122-E5CEBF628DA6</key>
+		<dict>
+			<key>xpos</key>
+			<integer>560</integer>
+			<key>ypos</key>
+			<integer>120</integer>
+		</dict>
+		<key>D5C9370A-D923-5113-838E-7E064C611A5B</key>
+		<dict>
+			<key>xpos</key>
+			<integer>280</integer>
+			<key>ypos</key>
+			<integer>120</integer>
+		</dict>
+	</dict>
+	<key>userconfigurationconfig</key>
+	<array/>
+	<key>variables</key>
+	<dict/>
+	<key>variablesdontexport</key>
+	<array/>
+	<key>version</key>
+	<string>1.1.0</string>
+	<key>webaddress</key>
+	<string></string>
+</dict>
+</plist>

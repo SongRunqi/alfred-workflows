@@ -25,6 +25,7 @@ PACKAGES=(
 	"System Settings|Settings"
 	"ApplicationShortcuts|Application Shortcuts"
 	"Pulse|Pulse"
+	"SQLIn|SQL In"
 )
 
 # Dev files that must never ship inside a package.
@@ -35,6 +36,7 @@ EXCLUDE=(
 	-x ".ruff_cache/*"
 	-x "*.swift"        # engine sources (window_control.swift, make_icons.swift)
 	-x "build_plist.py" # plist generator
+	-x "make_icon.py"   # icon generator
 	-x "pack.sh"        # Glide's local release packer
 	-x "README.md"      # repo-facing docs; the plist `readme` field ships instead
 )

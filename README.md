@@ -17,6 +17,7 @@ double-click one to import into Alfred.
 | [System Settings](System%20Settings/) | — | Search and open macOS System Settings panes | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/Settings.alfredworkflow) |
 | [Application Shortcuts](ApplicationShortcuts/) | `app` | Hyper-key app launcher: 36 hotkey slots, configurable terminal/browser, `app` menu | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/Application%20Shortcuts.alfredworkflow) |
 | [Pulse](Pulse/) | `update` | Check installed workflows against the repo manifest and update them via Alfred's import flow (Hyper+U for a silent check) | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/Pulse.alfredworkflow) |
+| [SQL In](SQLIn/) | `in` | Turn selected / copied / typed IDs into a SQL `IN (...)` clause and copy it back (Text Action ⌘/ + keyword, auto-detects numbers vs strings) | [⬇️](https://github.com/SongRunqi/alfred-workflows/raw/main/SQL%20In.alfredworkflow) |
 
 > ⬇️ 点击下载 `.alfredworkflow`，双击导入 Alfred。
 

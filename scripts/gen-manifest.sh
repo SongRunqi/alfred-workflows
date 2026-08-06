@@ -41,6 +41,7 @@ PACKAGES = [
     ("System Settings", "Settings.alfredworkflow"),
     ("ApplicationShortcuts", "Application Shortcuts.alfredworkflow"),
     ("Pulse", "Pulse.alfredworkflow"),
+    ("SQLIn", "SQL In.alfredworkflow"),
 ]
 
 workflows = []
