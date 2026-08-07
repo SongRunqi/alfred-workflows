@@ -109,9 +109,15 @@ Pulse（关键词 `update`）每次触发都**实时** curl 拉取
 2. **重新打包**：各工作流自己的 `./pack.sh`（需要重编引擎时 `./pack.sh --universal`）
 3. **重新生成清单**：`bash scripts/gen-manifest.sh` —— 从源 info.plist 读
    name/bundleid/version，哈希根目录 `.alfredworkflow` 写 sha256，输出
-   `versions.json`（缺失的包打印 SKIP 跳过）
+   `versions.json`（缺失的包打印 SKIP 跳过）。URL 自带 `?v=<sha12>`
+   cache-buster，GitHub raw CDN 不会吐旧包
 4. **提交 + 推送**：工作流改动与 `versions.json` 一起 commit 并 push 到 main。
-   ⚠️ **不 push 就永远检测不到**（Pulse 只认 main 分支的 raw 地址）
+   ⚠️ **不 push 就永远检测不到**（Pulse 只认 main 分支的 raw 地址）。
+   ⚠️ **根目录的 `.alfredworkflow` 不在 `git add <工作流目录>/` 范围内**，
+   必须单独 `git add xxx.alfredworkflow` —— 曾因漏提交导致用户更新时
+   「校验和不匹配」
+5. **推后验证**（防漏提交/CDN 缓存）：
+   `curl -sSL <raw url> | shasum -a 256` 必须等于清单 sha256
 
 用户侧：**无需任何操作**，重新输 `update` 即实时生效；唯一延迟是 GitHub raw
 CDN 缓存（push 后通常几十秒内）。替换导入后已装版本 = manifest 版本，

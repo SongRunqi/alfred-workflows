@@ -1,7 +1,7 @@
 {
   "repo": "SongRunqi/alfred-workflows",
   "branch": "main",
-  "updated": "2026-08-07 10:12:11 +0800",
+  "updated": "2026-08-07 10:21:28 +0800",
   "workflows": [
     {
       "name": "Homebrew Manager",
@@ -9,7 +9,7 @@
       "version": "1.0.0",
       "file": "Homebrew Manager.alfredworkflow",
       "sha256": "50bd46d924d98a395a9f0eb95fccc091cde66fa7278cfc89cb16efdad87269d0",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Homebrew%20Manager.alfredworkflow"
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Homebrew%20Manager.alfredworkflow?v=50bd46d924d9"
     },
     {
       "name": "NetEase Music Controls",
@@ -17,7 +17,7 @@
       "version": "2.0.2",
       "file": "NetEase Music Controls.alfredworkflow",
       "sha256": "49814f97b4b378fa02344dea8d9c8de807b5e008509dca1a81b5d4e8676abe69",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/NetEase%20Music%20Controls.alfredworkflow"
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/NetEase%20Music%20Controls.alfredworkflow?v=49814f97b4b3"
     },
     {
       "name": "Glide",
@@ -25,7 +25,7 @@
       "version": "1.8.0",
       "file": "Glide.alfredworkflow",
       "sha256": "52aa94ff9ba2c6004cef8a5fd36547dc3d0052e16c5477311bca77b4d00a5877",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Glide.alfredworkflow"
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Glide.alfredworkflow?v=52aa94ff9ba2"
     },
     {
       "name": "PiHop",
@@ -33,7 +33,7 @@
       "version": "1.1.2",
       "file": "PiHop.alfredworkflow",
       "sha256": "464aab9cd318239e5ebf496f996d7574bf7191b26213d04858139eac6982aa93",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/PiHop.alfredworkflow"
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/PiHop.alfredworkflow?v=464aab9cd318"
     },
     {
       "name": "Settings",
@@ -41,7 +41,7 @@
       "version": "1.0.0",
       "file": "Settings.alfredworkflow",
       "sha256": "e9a150f5273170b437f4b34468b73c4f912ceebaa358003501f93abff18d4acd",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Settings.alfredworkflow"
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Settings.alfredworkflow?v=e9a150f52731"
     },
     {
       "name": "application shortcuts",
@@ -49,7 +49,7 @@
       "version": "2.0.0",
       "file": "Application Shortcuts.alfredworkflow",
       "sha256": "0147ea6ac5d65054e2a8bdccbf5bc9655c50ad07e03499667959c924eb8070c5",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Application%20Shortcuts.alfredworkflow"
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Application%20Shortcuts.alfredworkflow?v=0147ea6ac5d6"
     },
     {
       "name": "Pulse",
@@ -57,7 +57,7 @@
       "version": "1.0.1",
       "file": "Pulse.alfredworkflow",
       "sha256": "9a0a0d42e5a9415c9307f61c15296ef288cadc1b65dcc2956ab85feb99a61075",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Pulse.alfredworkflow"
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Pulse.alfredworkflow?v=9a0a0d42e5a9"
     },
     {
       "name": "SQL In",
@@ -65,7 +65,7 @@
       "version": "1.1.0",
       "file": "SQL In.alfredworkflow",
       "sha256": "3bc1c37b5db8dd36b84d54e71af2e82af279bf0ca7564a53631c7c40c76264c7",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/SQL%20In.alfredworkflow"
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/SQL%20In.alfredworkflow?v=3bc1c37b5db8"
     }
   ]
 }

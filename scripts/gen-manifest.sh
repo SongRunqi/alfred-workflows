@@ -53,14 +53,17 @@ for src, pkg in PACKAGES:
         continue
     with plist_p.open("rb") as f:
         meta = plistlib.load(f)
+    digest = hashlib.sha256(zip_p.read_bytes()).hexdigest()
     workflows.append({
         "name": meta.get("name", src),
         "bundleid": meta.get("bundleid", ""),
         "version": str(meta.get("version") or ""),
         "file": pkg,
-        "sha256": hashlib.sha256(zip_p.read_bytes()).hexdigest(),
+        "sha256": digest,
+        # ?v=<sha12> cache-busts GitHub raw CDN: each release is a distinct
+        # URL, so a fresh manifest never downloads a stale-cached zip.
         "url": f"https://raw.githubusercontent.com/{repo}/{branch}/"
-               f"{pkg.replace(' ', '%20')}",
+               f"{pkg.replace(' ', '%20')}?v={digest[:12]}",
     })
 
 manifest = {
