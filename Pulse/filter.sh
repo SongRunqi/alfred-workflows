@@ -1,3 +1,3 @@
 #!/bin/sh
-# `update` keyword entry: emits the script-filter JSON.
+# `pulselist` list entry: emits the full update-list script-filter JSON.
 exec "$(dirname "$0")/pulse.py" filter "$1"

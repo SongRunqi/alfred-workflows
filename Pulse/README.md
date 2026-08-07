@@ -7,8 +7,9 @@
 
 | 操作 | 效果 |
 | --- | --- |
-| `update` | 检查并列出：可更新 / 已最新（读缓存秒开） |
-| 回车 | 下载 → sha256 校验 → `open -a "Alfred 5"` → 弹窗点「替换」 |
+| `update` | **回车**：检查并打开更新列表 |
+| `update <名称>` | **回车**：打开列表并按名称预过滤（如 `update pulse`） |
+| 在列表里回车 | 下载 → sha256 校验 → `open -a "Alfred 5"` → 弹窗点「替换」 |
 | ⌘回车 | 仅下载，不导入 |
 | `全部更新` | 逐个下载并交给 Alfred 确认 |
 | Hyper+U | 静默检查 → 通知摘要 |
@@ -42,7 +43,7 @@
 
 - `pulse.py` — 核心：扫描已安装 / 拉清单 / 版本比较 / 过滤器 JSON /
   通知 / 下载校验导入
-- `filter.sh` — `update` 关键词入口（脚本过滤器）
+- `filter.sh` — `pulselist` 列表入口（完整更新列表，经 go-list 外部触发器进入）
 - `update.sh` — 更新入口（`name|url|sha256` / `all` / `dl|…`）
 - `notify.sh` — Hyper+U 入口（静默检查 → 通知）
 - `build_plist.py` / `make_icon.py` / `pack.sh` — 构建与打包

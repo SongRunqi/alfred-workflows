@@ -1,7 +1,7 @@
 {
   "repo": "SongRunqi/alfred-workflows",
   "branch": "main",
-  "updated": "2026-08-07 10:32:21 +0800",
+  "updated": "2026-08-07 17:51:53 +0800",
   "workflows": [
     {
       "name": "Homebrew Manager",
@@ -30,10 +30,10 @@
     {
       "name": "PiHop",
       "bundleid": "com.yt.pi-agent",
-      "version": "1.1.2",
+      "version": "1.2.0",
       "file": "PiHop.alfredworkflow",
-      "sha256": "464aab9cd318239e5ebf496f996d7574bf7191b26213d04858139eac6982aa93",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/PiHop.alfredworkflow?v=464aab9cd318"
+      "sha256": "d598da7c2f2f88d5fe0efc64b787150855b9b2d157cece747d925a4df3a9553e",
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/PiHop.alfredworkflow?v=d598da7c2f2f"
     },
     {
       "name": "Settings",
@@ -54,10 +54,10 @@
     {
       "name": "Pulse",
       "bundleid": "com.songyitian.pulse",
-      "version": "1.0.1",
+      "version": "1.2.0",
       "file": "Pulse.alfredworkflow",
-      "sha256": "9a0a0d42e5a9415c9307f61c15296ef288cadc1b65dcc2956ab85feb99a61075",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Pulse.alfredworkflow?v=9a0a0d42e5a9"
+      "sha256": "b9317bec162d22ad189a0cb0bc7ebc066a3394b573bbd8b12e91d682e6f7e254",
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Pulse.alfredworkflow?v=b9317bec162d"
     },
     {
       "name": "SQL In",

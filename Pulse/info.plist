@@ -21,11 +21,24 @@
 				<false/>
 			</dict>
 		</array>
-		<key>6BB00D0B-3E62-5EF9-89D7-3BD505A23865</key>
+		<key>188E9700-AED8-5E32-A93B-68A0A85B857D</key>
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>CBE8E4F1-E023-5683-AFB2-97C97B2C5FD2</string>
+				<string>AF95EB6E-7832-536A-B2C6-1F43B43A674E</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>6942E342-5E1D-598A-8544-2D044B121387</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>993D79F9-9372-5963-979B-C68B918CA58E</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -39,6 +52,32 @@
 			<dict>
 				<key>destinationuid</key>
 				<string>E62E505A-B4FE-543F-8937-FB253C606F2D</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>993D79F9-9372-5963-979B-C68B918CA58E</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>188E9700-AED8-5E32-A93B-68A0A85B857D</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
+		<key>AF95EB6E-7832-536A-B2C6-1F43B43A674E</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>CBE8E4F1-E023-5683-AFB2-97C97B2C5FD2</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -74,6 +113,59 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>keyword</key>
+				<string>update</string>
+				<key>subtext</key>
+				<string>回车检查更新 · 输入工作流名称可过滤</string>
+				<key>text</key>
+				<string>Pulse</string>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>6942E342-5E1D-598A-8544-2D044B121387</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>externaltriggerid</key>
+				<string>go-list</string>
+				<key>passinputasargument</key>
+				<true/>
+				<key>passvariables</key>
+				<true/>
+				<key>workflowbundleid</key>
+				<string>self</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.callexternaltrigger</string>
+			<key>uid</key>
+			<string>993D79F9-9372-5963-979B-C68B918CA58E</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>triggerid</key>
+				<string>go-list</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.trigger.external</string>
+			<key>uid</key>
+			<string>188E9700-AED8-5E32-A93B-68A0A85B857D</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>alfredfiltersresults</key>
 				<true/>
 				<key>alfredfiltersresultsmatchmode</key>
@@ -87,7 +179,7 @@
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>keyword</key>
-				<string>update</string>
+				<string>pulselist</string>
 				<key>queuedelaycustom</key>
 				<integer>3</integer>
 				<key>queuedelayimmediatelyinitially</key>
@@ -114,7 +206,7 @@
 			<key>type</key>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
-			<string>6BB00D0B-3E62-5EF9-89D7-3BD505A23865</string>
+			<string>AF95EB6E-7832-536A-B2C6-1F43B43A674E</string>
 			<key>version</key>
 			<integer>3</integer>
 		</dict>
@@ -227,7 +319,8 @@
 
 | 操作 | 效果 |
 | --- | --- |
-| `update` | 检查并列出：可更新 / 已最新 |
+| `update` | 回车：检查并打开更新列表 |
+| `update &lt;名称&gt;` | 回车：打开列表并按名称预过滤 |
 | 回车 | 下载 → sha256 校验 → 交给 Alfred 确认替换 |
 | ⌘回车 | 仅下载，不导入 |
 | `全部更新` | 逐个下载并交给 Alfred 确认 |
@@ -262,9 +355,16 @@ Pulse 更新时先更新自己：新版发布后 `update` 里同样会出现 Pul
 			<key>xpos</key>
 			<integer>40</integer>
 			<key>ypos</key>
-			<integer>200</integer>
+			<integer>500</integer>
 		</dict>
-		<key>6BB00D0B-3E62-5EF9-89D7-3BD505A23865</key>
+		<key>188E9700-AED8-5E32-A93B-68A0A85B857D</key>
+		<dict>
+			<key>xpos</key>
+			<integer>280</integer>
+			<key>ypos</key>
+			<integer>120</integer>
+		</dict>
+		<key>6942E342-5E1D-598A-8544-2D044B121387</key>
 		<dict>
 			<key>xpos</key>
 			<integer>40</integer>
@@ -276,21 +376,35 @@ Pulse 更新时先更新自己：新版发布后 `update` 里同样会出现 Pul
 			<key>xpos</key>
 			<integer>280</integer>
 			<key>ypos</key>
-			<integer>200</integer>
+			<integer>500</integer>
 		</dict>
-		<key>CBE8E4F1-E023-5683-AFB2-97C97B2C5FD2</key>
+		<key>993D79F9-9372-5963-979B-C68B918CA58E</key>
 		<dict>
 			<key>xpos</key>
 			<integer>280</integer>
 			<key>ypos</key>
 			<integer>40</integer>
 		</dict>
+		<key>AF95EB6E-7832-536A-B2C6-1F43B43A674E</key>
+		<dict>
+			<key>xpos</key>
+			<integer>40</integer>
+			<key>ypos</key>
+			<integer>320</integer>
+		</dict>
+		<key>CBE8E4F1-E023-5683-AFB2-97C97B2C5FD2</key>
+		<dict>
+			<key>xpos</key>
+			<integer>280</integer>
+			<key>ypos</key>
+			<integer>320</integer>
+		</dict>
 		<key>E62E505A-B4FE-543F-8937-FB253C606F2D</key>
 		<dict>
 			<key>xpos</key>
 			<integer>560</integer>
 			<key>ypos</key>
-			<integer>120</integer>
+			<integer>320</integer>
 		</dict>
 	</dict>
 	<key>userconfigurationconfig</key>
@@ -343,7 +457,7 @@ Pulse 更新时先更新自己：新版发布后 `update` 里同样会出现 Pul
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>1.0.1</string>
+	<string>1.2.0</string>
 	<key>webaddress</key>
 	<string></string>
 </dict>

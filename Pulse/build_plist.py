@@ -4,8 +4,12 @@
 Pulse checks installed workflows against the repo's versions.json manifest
 and hands updates to Alfred's own import flow.
 
-Objects (4): `update` script filter → update.sh; Hyper+U hotkey → notify.sh.
-Config: Configure Workflow… exposes the repo override (PULSE_REPO env).
+Objects (8): `update` entry keyword → go-list external trigger → list
+script filter (`pulselist`, hidden keyword) → update.sh; Hyper+U hotkey →
+notify.sh. The keyword passes its argument through, so `update <name>` opens
+the list pre-filtered to matching workflow names (filtering happens after
+Enter, not while typing). Config: Configure Workflow… exposes the repo
+override (PULSE_REPO env).
 
     python3 build_plist.py     # writes info.plist next to this script
 """
@@ -24,14 +28,52 @@ def uid(name: str) -> str:
     return str(uuid.uuid5(uuid.NAMESPACE_URL, f"com.songyitian.pulse:{name}")).upper()
 
 
-sf_uid = uid("filter")
+kw_uid = uid("entry")  # `update` keyword — bare Enter opens the list
+list_uid = uid("list")  # full update list (reachable via go-list trigger)
 update_uid = uid("update")
 hk_uid = uid("hotkey")
 notify_uid = uid("notify")
 notif_uid = uid("notification")
+call_uid = uid("call-list")  # Call External Trigger -> go-list
+listtrig_uid = uid("trig-list")  # External Trigger node (go-list)
 
 objects = [
-    # `update` script filter
+    # `update` keyword — nothing runs until Enter; the bare keyword opens the
+    # full list, `update <name>` opens it pre-filtered (query flows through
+    # go-list to the list filter below)
+    {
+        "config": {
+            "argumenttype": 1,
+            "keyword": "update",
+            "subtext": "回车检查更新 · 输入工作流名称可过滤",
+            "text": "Pulse",
+            "withspace": False,
+        },
+        "type": "alfred.workflow.input.keyword",
+        "uid": kw_uid,
+        "version": 1,
+    },
+    # Call External Trigger: keyword -> open the list filter, forwarding the
+    # typed query so `update <name>` pre-filters the list
+    {
+        "config": {
+            "externaltriggerid": "go-list",
+            "passinputasargument": True,
+            "passvariables": True,
+            "workflowbundleid": "self",
+        },
+        "type": "alfred.workflow.output.callexternaltrigger",
+        "uid": call_uid,
+        "version": 1,
+    },
+    # External Trigger node: go-list -> list Script Filter
+    {
+        "config": {"triggerid": "go-list"},
+        "type": "alfred.workflow.trigger.external",
+        "uid": listtrig_uid,
+        "version": 1,
+    },
+    # list Script Filter — the full update list (hidden keyword)
     {
         "config": {
             "alfredfiltersresults": True,
@@ -40,7 +82,7 @@ objects = [
             "argumenttrimmode": 0,
             "argumenttype": 1,
             "escaping": 102,
-            "keyword": "update",
+            "keyword": "pulselist",
             "queuedelaycustom": 3,
             "queuedelayimmediatelyinitially": True,
             "queuedelaymode": 0,
@@ -54,7 +96,7 @@ objects = [
             "withspace": False,
         },
         "type": "alfred.workflow.input.scriptfilter",
-        "uid": sf_uid,
+        "uid": list_uid,
         "version": 3,
     },
     # updater (item arg: name|url|sha256 | all | dl|…)
@@ -129,18 +171,26 @@ def edge(dest):
 
 
 connections = {
-    sf_uid: [edge(update_uid)],
+    kw_uid: [edge(call_uid)],  # `update` keyword → go-list external trigger
+    call_uid: [edge(listtrig_uid)],
+    # external trigger re-opens Alfred's window natively; False matches the
+    # working PiHop drill-down (ground truth), no flash-shut needed here
+    listtrig_uid: [edge(list_uid)],
+    list_uid: [edge(update_uid)],
     hk_uid: [edge(notify_uid)],
     update_uid: [edge(notif_uid)],
     notify_uid: [edge(notif_uid)],
 }
 
 uidata = {
-    sf_uid: {"xpos": 40, "ypos": 40},
-    update_uid: {"xpos": 280, "ypos": 40},
-    hk_uid: {"xpos": 40, "ypos": 200},
-    notify_uid: {"xpos": 280, "ypos": 200},
-    notif_uid: {"xpos": 560, "ypos": 120},
+    kw_uid: {"xpos": 40, "ypos": 40},
+    call_uid: {"xpos": 280, "ypos": 40},
+    listtrig_uid: {"xpos": 280, "ypos": 120},
+    list_uid: {"xpos": 40, "ypos": 320},
+    update_uid: {"xpos": 280, "ypos": 320},
+    hk_uid: {"xpos": 40, "ypos": 500},
+    notify_uid: {"xpos": 280, "ypos": 500},
+    notif_uid: {"xpos": 560, "ypos": 320},
 }
 
 README = """## Pulse
@@ -152,7 +202,8 @@ README = """## Pulse
 
 | 操作 | 效果 |
 | --- | --- |
-| `update` | 检查并列出：可更新 / 已最新 |
+| `update` | 回车：检查并打开更新列表 |
+| `update <名称>` | 回车：打开列表并按名称预过滤 |
 | 回车 | 下载 → sha256 校验 → 交给 Alfred 确认替换 |
 | ⌘回车 | 仅下载，不导入 |
 | `全部更新` | 逐个下载并交给 Alfred 确认 |
@@ -187,7 +238,7 @@ plist = {
     "description": "给工作流号脉：检查并更新已安装的 Alfred workflows",
     "createdby": "Songyitian",
     "webaddress": "",
-    "version": "1.0.1",
+    "version": "1.2.0",
     "category": "Tools",
     "disabled": False,
     "readme": README,
