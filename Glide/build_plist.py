@@ -24,6 +24,11 @@ ACTIONS = [
     ("tr", "Top Right"),
     ("bl", "Bottom Left"),
     ("br", "Bottom Right"),
+    ("lh", "Left Half"),
+    ("rh", "Right Half"),
+    ("l3", "Left Third"),
+    ("c3", "Center Third"),
+    ("r3", "Right Third"),
 ]
 
 # id -> (keyword trigger, result title, result subtext)
@@ -35,6 +40,11 @@ KEYWORDS = {
     "tr": ("topright", "Top Right", "Top-right quarter"),
     "bl": ("bottomleft", "Bottom Left", "Bottom-left quarter"),
     "br": ("bottomright", "Bottom Right", "Bottom-right quarter"),
+    "lh": ("lefthalf", "Left Half", "Left half of the screen"),
+    "rh": ("righthalf", "Right Half", "Right half of the screen"),
+    "l3": ("thirdleft", "Left Third", "Left third of the screen"),
+    "c3": ("thirdcenter", "Center Third", "Center third of the screen"),
+    "r3": ("thirdright", "Right Third", "Right third of the screen"),
 }
 
 LIST_KEYWORD = "window"  # "win" is claimed by the installed "Search ALL the docs!"
@@ -71,7 +81,7 @@ objects.append(
             "runningsubtext": "Resizing window…",
             "scriptargtype": 0,
             "scriptfile": "actions.py",
-            "subtext": "Maximize · Reasonable · Center · Quarters",
+            "subtext": "Maximize · Reasonable · Center · Halves · Thirds · Quarters",
             "text": "Glide",
             "type": 8,
             "withspace": False,
@@ -200,10 +210,10 @@ uidata[notify_uid] = {"xpos": 1200.0, "ypos": 320.0}
 # --- Metadata -----------------------------------------------------------------
 README = """## Glide
 
-Maximize, "reasonable" size (two-thirds, centered), center, and quarter tiles
-for the frontmost window — straight from a keyword, or from the action list /
-hotkeys. Resizing is done by a small bundled engine (Accessibility API), so
-every action lands exactly where the screen allows.
+Maximize, "reasonable" size (two-thirds, centered), center, half and third
+tiles, and quarter tiles for the frontmost window — straight from a keyword,
+or from the action list / hotkeys. Resizing is done by a small bundled engine
+(Accessibility API), so every action lands exactly where the screen allows.
 
 ### Requirements
 
@@ -227,6 +237,11 @@ Type any keyword below and press ↩ — the frontmost window moves immediately:
 | `maximize` | fill the screen (below the menu bar) |
 | `reasonable` | two-thirds width & height, centered |
 | `center` | keep size, center on screen |
+| `lefthalf` | left half of the screen |
+| `righthalf` | right half of the screen |
+| `thirdleft` | left third of the screen |
+| `thirdcenter` | center third of the screen |
+| `thirdright` | right third of the screen |
 | `topleft` | top-left quarter |
 | `topright` | top-right quarter |
 | `bottomleft` | bottom-left quarter |
@@ -259,10 +274,10 @@ assigned by default, so importing never conflicts with keys you already use.
 plist = {
     "bundleid": "com.songyitian.glide",
     "name": "Glide",
-    "description": "Glide windows: maximize, size, center and quarter tiles",
+    "description": "Glide windows: maximize, size, center, halves, thirds and quarter tiles",
     "createdby": "Songyitian",
     "webaddress": "",
-    "version": "1.7.0",
+    "version": "1.8.0",
     "category": "Tools",
     "disabled": False,
     "readme": README,

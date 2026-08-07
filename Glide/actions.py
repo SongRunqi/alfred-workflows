@@ -15,6 +15,11 @@ ACTIONS = [
     ("tr", "Top Right", "Top-right quarter", "icons/tr.png"),
     ("bl", "Bottom Left", "Bottom-left quarter", "icons/bl.png"),
     ("br", "Bottom Right", "Bottom-right quarter", "icons/br.png"),
+    ("lh", "Left Half", "Left half of the screen", "icons/lh.png"),
+    ("rh", "Right Half", "Right half of the screen", "icons/rh.png"),
+    ("l3", "Left Third", "Left third of the screen", "icons/l3.png"),
+    ("c3", "Center Third", "Center third of the screen", "icons/c3.png"),
+    ("r3", "Right Third", "Right third of the screen", "icons/r3.png"),
 ]
 
 # No uid on purpose: the fixed palette order must survive Alfred's learning.

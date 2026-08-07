@@ -1,8 +1,8 @@
 # Glide
 
-Maximize, "reasonable" size (two-thirds width & height, centered), center, and
-quarter tiles for the frontmost window — straight from a keyword, or from the
-action list / hotkeys.
+Maximize, "reasonable" size (two-thirds width & height, centered), center,
+half and third tiles, and quarter tiles for the frontmost window — straight
+from a keyword, or from the action list / hotkeys.
 
 Resizing is done by a small bundled Swift engine (`window_control`) using the
 Accessibility API: geometry is computed from the window's own screen and lands
@@ -30,6 +30,11 @@ Type any keyword below and press ↩ — the frontmost window moves immediately:
 | `maximize` | fill the screen (below the menu bar) |
 | `reasonable` | two-thirds width & height, centered |
 | `center` | keep size, center on screen |
+| `lefthalf` | left half of the screen |
+| `righthalf` | right half of the screen |
+| `thirdleft` | left third of the screen |
+| `thirdcenter` | center third of the screen |
+| `thirdright` | right third of the screen |
 | `topleft` | top-left quarter |
 | `topright` | top-right quarter |
 | `bottomleft` | bottom-left quarter |
@@ -45,7 +50,7 @@ the keys (e.g. Maximize on ⌃⌥⌘M).
 ## Behaviour notes
 
 - Moves animate smoothly: pure moves glide (~150 ms ease-out); size-changing
-  actions (maximize, reasonable, quarters) fire Rectangle-style
+  actions (maximize, reasonable, quarters, halves, thirds) fire Rectangle-style
   size→position→size back-to-back so the app renders one motion. Turn the
   Animation checkbox off in Configure Workflow… for instant snapping, or
   rely on the system Reduce Motion setting.

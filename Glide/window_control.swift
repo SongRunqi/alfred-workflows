@@ -17,7 +17,7 @@
 // instantly ("promise"), long before the app finished rendering, so an AX
 // check lets the next action pile onto a busy app — the stutter you see.
 //
-// Modes: max | reasonable | center | tl | tr | bl | br
+// Modes: max | reasonable | center | tl | tr | bl | br | lh | rh | l3 | c3 | r3
 // Prints nothing on success; prints an error message on failure (Alfred
 // surfaces it as a notification). Coordinates are in the global display
 // space (top-left origin of the primary display, y down) — the same space
@@ -212,7 +212,7 @@ func animateFrame(_ window: AXUIElement, from start: CGRect, to target: CGRect,
 // --- Main -------------------------------------------------------------------
 
 let args = CommandLine.arguments
-guard args.count > 1 else { fail("usage: window_control <max|reasonable|center|tl|tr|bl|br> [animate 0|1]") }
+guard args.count > 1 else { fail("usage: window_control <max|reasonable|center|tl|tr|bl|br|lh|rh|l3|c3|r3> [animate 0|1]") }
 let mode = args[1]
 let animate = args.count > 2 ? args[2] != "0" : true
 
@@ -296,6 +296,21 @@ case "bl":
 case "br":
     target = CGRect(x: usable.midX, y: usable.midY,
                     width: usable.width / 2, height: usable.height / 2)
+case "lh":
+    target = CGRect(x: usable.minX, y: usable.minY,
+                    width: usable.width / 2, height: usable.height)
+case "rh":
+    target = CGRect(x: usable.midX, y: usable.minY,
+                    width: usable.width / 2, height: usable.height)
+case "l3":
+    target = CGRect(x: usable.minX, y: usable.minY,
+                    width: usable.width / 3, height: usable.height)
+case "c3":
+    target = CGRect(x: usable.minX + usable.width / 3, y: usable.minY,
+                    width: usable.width / 3, height: usable.height)
+case "r3":
+    target = CGRect(x: usable.minX + usable.width * 2 / 3, y: usable.minY,
+                    width: usable.width / 3, height: usable.height)
 default:
     fail("未知模式: \(mode)")
 }
