@@ -1,7 +1,7 @@
 {
   "repo": "SongRunqi/alfred-workflows",
   "branch": "main",
-  "updated": "2026-08-06 10:42:28 +0800",
+  "updated": "2026-08-07 10:12:11 +0800",
   "workflows": [
     {
       "name": "Homebrew Manager",
@@ -22,9 +22,9 @@
     {
       "name": "Glide",
       "bundleid": "com.songyitian.glide",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "file": "Glide.alfredworkflow",
-      "sha256": "19f14aefb0110e92360d2cad146a9bf54a909ca9a33d894045321fc5afc59ba2",
+      "sha256": "52aa94ff9ba2c6004cef8a5fd36547dc3d0052e16c5477311bca77b4d00a5877",
       "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Glide.alfredworkflow"
     },
     {
