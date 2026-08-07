@@ -1,14 +1,14 @@
 # PiHop
 
-Hop into pi / Claude Code agent sessions grouped by project, straight from
-Alfred.
+Hop into pi / Claude Code / Codex agent sessions grouped by project,
+straight from Alfred.
 
 Requires **Alfred 5.5+** (the session browser uses the Text View).
 
 ## Usage
 
-- `hop` — project list (auto-discovered from `~/.pi/agent/sessions` and
-  `~/.claude`)
+- `hop` — project list (auto-discovered from `~/.pi/agent/sessions`,
+  `~/.claude` and `~/.codex/sessions`)
 - ↩ on a project — its sessions
 - ↩ on a session — resume it in the terminal
 - ⌥ on a session — browse the conversation in a Text View (markdown-rendered,
@@ -51,14 +51,20 @@ of a bare `command not found` inside the terminal.
 ## Behavior notes
 
 - Resuming a session opens the terminal (frontmost when the app supports
-  it) and runs `claude --resume <sid>` / `pi --session <file>` in the
-  project directory.
+  it) and runs `claude --resume <sid>` / `pi --session <file>` /
+  `codex resume <sid>` in the project directory.
+- Codex sessions live under `~/.codex/sessions/YYYY/MM/DD/` and are grouped
+  by the `cwd` recorded in each rollout file's `session_meta`; titles come
+  from `~/.codex/session_index.jsonl` when available, else the first real
+  user message.
 - The Text View renders pi and Claude Code v2 jsonl (tool calls and
   thinking collapsed into details blocks, UTC timestamps converted to
-  local) and opens scrolled to the latest message.
+  local) and Codex rollout jsonl (developer/injected messages skipped,
+  reasoning and function calls collapsed), and opens scrolled to the
+  latest message.
 - Icons: official pi P-mark (green), official Anthropic starburst for
-  Claude (orange), grey cpu for custom agents — all rendered on
-  terminal-dark badges in `icons/`.
+  Claude (orange), white code mark for Codex, grey cpu for custom agents —
+  all rendered on terminal-dark badges in `icons/`.
 
 ## Development
 

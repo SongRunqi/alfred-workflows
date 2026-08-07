@@ -33,6 +33,7 @@ struct IconSpec {
 
 let icons: [IconSpec] = [
     IconSpec(name: "pi", symbol: "pi", color: NSColor(calibratedRed: 0.20, green: 0.83, blue: 0.60, alpha: 1)),      // π, green
+    IconSpec(name: "codex", symbol: "chevron.left.forwardslash.chevron.right", color: NSColor(calibratedRed: 0.93, green: 0.93, blue: 0.95, alpha: 1)), // Codex/OpenAI white
     IconSpec(name: "agent", symbol: "cpu", color: NSColor(calibratedRed: 0.61, green: 0.64, blue: 0.69, alpha: 1)),  // grey, custom-agent fallback
     IconSpec(name: "new", symbol: "plus.circle", color: NSColor(calibratedRed: 0.98, green: 0.75, blue: 0.15, alpha: 1)), // amber
     IconSpec(name: "resume", symbol: "clock.arrow.circlepath", color: NSColor(calibratedRed: 0.38, green: 0.65, blue: 0.98, alpha: 1)), // blue

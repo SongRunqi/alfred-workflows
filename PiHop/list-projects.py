@@ -17,6 +17,7 @@ QUERY = sys.argv[1] if len(sys.argv) > 1 else ""
 PI_SESSIONS = HOME / ".pi" / "agent" / "sessions"
 CLAUDE_SESSIONS = HOME / ".claude" / "sessions"
 CLAUDE_PROJECTS = HOME / ".claude" / "projects"
+CODEX_SESSIONS = HOME / ".codex" / "sessions"
 
 # ---- Config ----
 # All configuration comes from Alfred workflow environment variables
@@ -24,6 +25,7 @@ CLAUDE_PROJECTS = HOME / ".claude" / "projects"
 _DEFAULT_AGENTS = {
     "pi": {"name": "pi", "launch": "pi"},
     "claude": {"name": "Claude Code", "launch": "claude"},
+    "codex": {"name": "Codex", "launch": "codex"},
 }
 
 
@@ -171,6 +173,8 @@ def main():
                 "pi_last": pi_l,
                 "cc_count": 0,
                 "cc_last": "",
+                "cx_count": 0,
+                "cx_last": "",
                 "active": False,
             }
 
@@ -193,6 +197,8 @@ def main():
                     "pi_last": "",
                     "cc_count": cc_c,
                     "cc_last": cc_l,
+                    "cx_count": 0,
+                    "cx_last": "",
                     "active": False,
                 }
 
@@ -212,13 +218,51 @@ def main():
                     "pi_last": "",
                     "cc_count": 1,
                     "cc_last": "",
+                    "cx_count": 0,
+                    "cx_last": "",
                     "active": data.get("status") == "busy",
                 }
+
+    # --- Scan codex sessions ---
+    # Codex doesn't group sessions by project directory; every rollout file
+    # lives under ~/.codex/sessions/YYYY/MM/DD/ and carries its cwd in the
+    # first line's session_meta payload. Group by that cwd here.
+    if CODEX_SESSIONS.is_dir():
+        for sf in CODEX_SESSIONS.glob("*/*/*/*.jsonl"):
+            try:
+                meta = json.loads(sf.open().readline())
+                payload = meta.get("payload", {}) or {}
+                cwd = payload.get("cwd", "")
+            except Exception:
+                continue
+            if not cwd or not Path(cwd).is_dir():
+                continue
+            # mtime = last activity (rollout files are appended to)
+            last = time.strftime(
+                "%Y-%m-%dT%H:%M:%S", time.localtime(sf.stat().st_mtime)
+            )
+            if cwd not in projects:
+                projects[cwd] = {
+                    "pi_count": 0,
+                    "pi_last": "",
+                    "cc_count": 0,
+                    "cc_last": "",
+                    "cx_count": 0,
+                    "cx_last": "",
+                    "active": False,
+                }
+            projects[cwd]["cx_count"] += 1
+            if last > projects[cwd]["cx_last"]:
+                projects[cwd]["cx_last"] = last
 
     # --- Sort ---
     sorted_projects = sorted(
         projects.items(),
-        key=lambda kv: max(to_epoch(kv[1]["pi_last"]), to_epoch(kv[1]["cc_last"])),
+        key=lambda kv: max(
+            to_epoch(kv[1]["pi_last"]),
+            to_epoch(kv[1]["cc_last"]),
+            to_epoch(kv[1]["cx_last"]),
+        ),
         reverse=True,
     )
 
@@ -252,6 +296,7 @@ def main():
         name = Path(dir_path).name
         pi_c, pi_l = p["pi_count"], p["pi_last"]
         cc_c, cc_l = p["cc_count"], p["cc_last"]
+        cx_c, cx_l = p["cx_count"], p["cx_last"]
 
         if QUERY and not QUERY.startswith("__"):
             # withspace=false passes the query with a possible leading space
@@ -264,6 +309,8 @@ def main():
             sub_parts.append(f"{_agent_name('pi')}: {pi_c}s, {reltime(pi_l)}")
         if cc_c > 0:
             sub_parts.append(f"{_agent_name('claude')}: {cc_c}s, {reltime(cc_l)}")
+        if cx_c > 0:
+            sub_parts.append(f"{_agent_name('codex')}: {cx_c}s, {reltime(cx_l)}")
         flags = " ⚡" if p["active"] else ""
         subtitle = " | ".join(sub_parts) + f"  →  {dir_path}{flags}"
 
@@ -285,7 +332,7 @@ def main():
         items.append(
             {
                 "title": "No projects with sessions found",
-                "subtitle": "Run pi or claude in a project directory to create sessions",
+                "subtitle": "Run pi, claude or codex in a project directory to create sessions",
                 "arg": "none",
                 "valid": False,
             }

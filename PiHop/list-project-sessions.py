@@ -26,6 +26,8 @@ INPUT = sys.argv[1] if len(sys.argv) > 1 else ""
 PI_SESSIONS = HOME / ".pi" / "agent" / "sessions"
 CLAUDE_SESSIONS = HOME / ".claude" / "sessions"
 CLAUDE_PROJECTS = HOME / ".claude" / "projects"
+CODEX_SESSIONS = HOME / ".codex" / "sessions"
+CODEX_INDEX = HOME / ".codex" / "session_index.jsonl"
 
 # ---- Config ----
 # All configuration comes from Alfred workflow environment variables
@@ -33,6 +35,7 @@ CLAUDE_PROJECTS = HOME / ".claude" / "projects"
 _DEFAULT_AGENTS = {
     "pi": {"name": "pi", "launch": "pi"},
     "claude": {"name": "Claude Code", "launch": "claude"},
+    "codex": {"name": "Codex", "launch": "codex"},
 }
 
 
@@ -57,9 +60,11 @@ def _agent_name(agent_id: str) -> str:
 
 def _agent_icon(agent_id: str) -> str:
     """Per-agent icon file (relative to the workflow root)."""
-    return {"pi": "icons/pi.png", "claude": "icons/claude.png"}.get(
-        agent_id, "icons/agent.png"
-    )
+    return {
+        "pi": "icons/pi.png",
+        "claude": "icons/claude.png",
+        "codex": "icons/codex.png",
+    }.get(agent_id, "icons/agent.png")
 
 
 def _default_agent() -> str:
@@ -290,6 +295,106 @@ def scan_claude_sessions(project_dir: str) -> list[dict]:
     return sessions
 
 
+def codex_meta(sf: Path) -> tuple[str, str, str, str]:
+    """Read a Codex rollout jsonl in one pass.
+
+    Format: first line is session_meta (payload.cwd/id/timestamp), messages
+    are response_item entries with payload.type == "message" and content
+    blocks of type input_text/output_text. System-injected user texts start
+    with "<" (<app-context>, <recommended_plugins>, ...) or "# AGENTS.md"
+    (the AGENTS.md injection) and are skipped.
+    Returns (first_user_message, timestamp, session_id, cwd).
+    """
+    first_user = ""
+    ts = ""
+    sid = ""
+    cwd = ""
+    try:
+        with open(sf) as f:
+            for i, line in enumerate(f):
+                if i > 250:
+                    break
+                try:
+                    obj = json.loads(line)
+                except (json.JSONDecodeError, ValueError):
+                    continue
+                if obj.get("type") == "session_meta":
+                    p = obj.get("payload", {}) or {}
+                    sid = p.get("id") or p.get("session_id") or sid
+                    cwd = p.get("cwd", "")
+                    ts = p.get("timestamp", "") or ts
+                    continue
+                payload = obj.get("payload", {}) or {}
+                if not ts and obj.get("timestamp"):
+                    ts = obj["timestamp"]
+                if (
+                    not first_user
+                    and payload.get("type") == "message"
+                    and payload.get("role") == "user"
+                ):
+                    texts = [
+                        b.get("text", "")
+                        for b in payload.get("content", [])
+                        if isinstance(b, dict) and b.get("type") == "input_text"
+                    ]
+                    combined = " ".join(t for t in texts if t).strip()
+                    if (
+                        combined
+                        and not combined.startswith("<")
+                        and not combined.startswith("# AGENTS.md")
+                    ):
+                        first_user = combined[:80]
+                        break  # got everything we need
+    except OSError:
+        return "", "", "", ""
+    if not ts:
+        ts = time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(sf.stat().st_mtime))
+    return first_user, ts, sid, cwd
+
+
+def scan_codex_sessions(project_dir: str) -> list[dict]:
+    """Codex sessions for one project: every rollout file's cwd comes from
+    its session_meta; thread titles come from ~/.codex/session_index.jsonl."""
+    if not CODEX_SESSIONS.is_dir():
+        return []
+    name_lookup: dict[str, str] = {}
+    if CODEX_INDEX.is_file():
+        try:
+            with open(CODEX_INDEX) as f:
+                for line in f:
+                    try:
+                        obj = json.loads(line)
+                    except (json.JSONDecodeError, ValueError):
+                        continue
+                    if obj.get("id") and obj.get("thread_name"):
+                        name_lookup[obj["id"]] = obj["thread_name"]
+        except OSError:
+            pass
+
+    sessions = []
+    for sf in CODEX_SESSIONS.glob("*/*/*/*.jsonl"):
+        first_user, ts, sid, cwd = codex_meta(sf)
+        if cwd != project_dir:
+            continue
+        title = name_lookup.get(sid, "") or first_user or fmt_time(ts)
+        sessions.append(
+            {
+                "title": title,
+                "subtitle": f"codex  ·  {fmt_time(ts)}  ·  {(sf.stat().st_size / 1024):.0f}KB",
+                "arg": f"{sf}|codex|{project_dir}",
+                "mods": {
+                    "alt": {
+                        "subtitle": "⌥ 浏览会话内容",
+                        "arg": f"{sf}",
+                    }
+                },
+                "ts": ts,
+                "agent": "codex",
+            }
+        )
+    return sessions
+
+
 # ── Agent List mode ──
 
 
@@ -345,7 +450,11 @@ def show_sessions(project_dir: str, filter_text: str = ""):
         )
         return
 
-    all_sessions = scan_pi_sessions(project_dir) + scan_claude_sessions(project_dir)
+    all_sessions = (
+        scan_pi_sessions(project_dir)
+        + scan_claude_sessions(project_dir)
+        + scan_codex_sessions(project_dir)
+    )
     all_sessions.sort(key=lambda s: s.get("ts", ""), reverse=True)
 
     q = filter_text.strip().lower()

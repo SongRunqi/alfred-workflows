@@ -1,6 +1,6 @@
 #!/bin/zsh
 # shellcheck disable=SC2168,SC2296
-# launch.sh — Open pi/claude in a (configurable) terminal
+# launch.sh — Open pi/claude/codex in a (configurable) terminal
 #
 # Input formats:
 #   __new__|<dir>|<agent>             → start new session
@@ -162,11 +162,14 @@ if [[ "$mode" == "finder" && -z "$agent" ]]; then
 fi
 
 # ---- resolve agent binary ----
-# Anything but claude/cc runs pi, so resolve the binary of the agent that
-# will actually launch. A failed resolution is surfaced as a notification
-# instead of a bare "command not found" inside the terminal.
+# Resolve the binary of the agent that will actually launch. A failed
+# resolution is surfaced as a notification instead of a bare
+# "command not found" inside the terminal.
 local resolve_name="pi"
-[[ "$agent" == "claude" || "$agent" == "cc" ]] && resolve_name="claude"
+case "$agent" in
+claude | cc) resolve_name="claude" ;;
+codex | cx) resolve_name="codex" ;;
+esac
 local agent_bin
 agent_bin="$(_resolve_agent "$resolve_name")"
 if [[ "$agent_bin" != /* ]]; then
@@ -178,7 +181,7 @@ fi
 if [[ "$mode" == "finder" ]]; then
 	dir=$(osascript -e 'tell application "Finder" to if (count of windows) > 0 then POSIX path of (target of front window as alias)' 2>/dev/null || echo "$HOME")
 elif [[ "$mode" == "resume" && ! -d "$dir" ]]; then
-	dir=$(head -1 "$session_file" 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin).get('cwd',''))" 2>/dev/null || echo "$HOME")
+	dir=$(head -1 "$session_file" 2>/dev/null | python3 -c "import sys,json; o=json.load(sys.stdin); print(o.get('cwd','') or (o.get('payload') or {}).get('cwd',''))" 2>/dev/null || echo "$HOME")
 fi
 
 dir="${dir/#\~/$HOME}"
@@ -207,6 +210,19 @@ claude | cc)
 		fi
 	else
 		cmd="cd ${(q)dir} && clear && echo '🟣 claude — ${name}' && \"${(q)agent_bin}\"; exec \${SHELL:-/bin/zsh}"
+	fi
+	;;
+codex | cx)
+	if [[ "$mode" == "resume" && -f "$session_file" ]]; then
+		local sid
+		sid=$(head -1 "$session_file" | python3 -c "import sys,json; o=json.load(sys.stdin); p=o.get('payload') or {}; print(p.get('id') or p.get('session_id',''))" 2>/dev/null || true)
+		if [[ -n "$sid" ]]; then
+			cmd="cd ${(q)dir} && clear && echo '⚪ codex — ${name}' && \"${(q)agent_bin}\" resume '${sid}'; exec \${SHELL:-/bin/zsh}"
+		else
+			cmd="cd ${(q)dir} && clear && echo '⚪ codex — ${name}' && \"${(q)agent_bin}\" resume --last; exec \${SHELL:-/bin/zsh}"
+		fi
+	else
+		cmd="cd ${(q)dir} && clear && echo '⚪ codex — ${name}' && \"${(q)agent_bin}\"; exec \${SHELL:-/bin/zsh}"
 	fi
 	;;
 *)

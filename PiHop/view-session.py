@@ -134,6 +134,79 @@ def render_claude(path: Path, lines: list[str]) -> str:
     return header + "\n\n---\n" + body
 
 
+def render_codex(path: Path, lines: list[str]) -> str:
+    """Codex rollout jsonl: session_meta + response_item payloads.
+
+    Messages carry content blocks of type input_text/output_text; developer
+    messages (sandbox instructions, AGENTS.md, app context) are skipped, as
+    are system-injected user texts ("<...>", "# AGENTS.md").
+    """
+    cwd = ""
+    title_ts = ""
+    out = []
+    for line in lines:
+        obj = parse_line(line)
+        if not obj:
+            continue
+        kind = obj.get("type")
+        payload = obj.get("payload", {}) or {}
+        if kind == "session_meta":
+            cwd = payload.get("cwd", "")
+            title_ts = parse_ts(payload.get("timestamp", ""))
+        elif kind != "response_item":
+            continue
+        ptype = payload.get("type", "")
+        ts = parse_ts(obj.get("timestamp", ""))
+        if ptype == "message":
+            role = payload.get("role", "")
+            if role == "developer":
+                continue
+            texts = [
+                b.get("text", "")
+                for b in payload.get("content", [])
+                if isinstance(b, dict)
+                and b.get("type") in ("input_text", "output_text")
+            ]
+            content = "\n".join(t for t in texts if t).strip()
+            if not content:
+                continue
+            if role == "user":
+                if content.startswith(("<", "# AGENTS.md")):
+                    continue  # system-injected
+                content = content[:MAX_MESSAGE_CHARS]
+                out.append(f"\n## 🧑 You {('· ' + ts) if ts else ''}\n\n{content}")
+            elif role == "assistant":
+                content = content[:MAX_MESSAGE_CHARS]
+                out.append(
+                    f"\n## 🤖 Assistant {('· ' + ts) if ts else ''}\n\n{content}"
+                )
+        elif ptype == "reasoning":
+            summary = "\n".join(
+                s.get("text", "")
+                for s in payload.get("summary", [])
+                if isinstance(s, dict)
+            ).strip()
+            if summary:
+                out.append(
+                    f"\n<details><summary>💭 thinking</summary>\n\n"
+                    f"{summary[:2000]}\n\n</details>\n"
+                )
+        elif ptype == "function_call":
+            name = payload.get("name", "?")
+            args = payload.get("arguments", "")
+            out.append(f"\n```json\n// 🛠 {name}\n{str(args)[:1200]}\n```\n")
+        elif ptype == "function_call_output":
+            output = payload.get("output", "")
+            if isinstance(output, (dict, list)):
+                output = json.dumps(output, ensure_ascii=False)
+            out.append(f"\n```\n{str(output)[:800]}\n```\n")
+    header = f"# Session {title_ts}" if title_ts else "# Session"
+    if cwd:
+        header += f"\n\n`{cwd}`"
+    body = "\n".join(out) or "\n*(empty session)*"
+    return header + "\n\n---\n" + body
+
+
 def main() -> None:
     raw_arg = sys.argv[1] if len(sys.argv) > 1 else ""
     # "__view__|<path>" arrives from the project list's resume item;
@@ -186,6 +259,8 @@ def main() -> None:
     first = lines[0][:200] if lines else ""
     if '"type":"session"' in first.replace(" ", ""):
         markdown = render_pi(path, lines)
+    elif '"session_meta"' in first.replace(" ", ""):
+        markdown = render_codex(path, lines)
     else:
         markdown = render_claude(path, lines)
 

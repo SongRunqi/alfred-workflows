@@ -598,16 +598,16 @@ Requires Alfred 5+.</string>
 		<key>AED3EAA0-473D-46C5-B37C-851EEDE3F27F</key>
 		<dict>
 			<key>xpos</key>
-			<real>400</real>
+			<real>400.0</real>
 			<key>ypos</key>
-			<real>60</real>
+			<real>60.0</real>
 		</dict>
 		<key>D7048A67-A709-48FE-8CFF-8CDD4D313D8A</key>
 		<dict>
 			<key>xpos</key>
-			<real>620</real>
+			<real>620.0</real>
 			<key>ypos</key>
-			<real>400</real>
+			<real>400.0</real>
 		</dict>
 		<key>PID-CALLB</key>
 		<dict>
@@ -760,7 +760,7 @@ Requires Alfred 5+.</string>
 		<string>{"pi": {"name": "pi", "launch": "pi"}, "claude": {"name": "Claude Code", "launch": "claude"}}</string>
 	</dict>
 	<key>version</key>
-	<string>1.1.2</string>
+	<string>1.2.0</string>
 	<key>webaddress</key>
 	<string></string>
 </dict>
