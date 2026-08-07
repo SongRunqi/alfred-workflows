@@ -2,8 +2,8 @@
 """Pulse — check and update Alfred workflows from the repo manifest.
 
 Commands (argv):
-    filter [query]            script-filter JSON for the `pulselist` list;
-                              a query narrows it to matching workflow names
+    filter                    script-filter JSON for the `update` list
+    refresh                   force a fresh check (↻ row) → summary + reopen
     notify                    silent check → notification summary (Hyper+U)
     check                     plain-text status (debug / tests)
     update <spec|all>         download+verify+open in Alfred: <name>|<url>|<sha256>
@@ -34,6 +34,9 @@ BUNDLE_ID = "com.songyitian.pulse"
 
 DEFAULT_REPO = "SongRunqi/alfred-workflows"
 DEFAULT_BRANCH = "main"
+
+# Cache is considered fresh (list opens with zero network I/O) for this long.
+TTL_SECONDS = 600  # 10 minutes
 
 
 # ---------------------------------------------------------------- helpers ---
@@ -224,12 +227,23 @@ def fetch_manifest() -> dict | None:
 # ------------------------------------------------------------------ check ---
 
 
-def check() -> dict:
-    """Fresh check: scan installed ∪ manifest, compare, write cache.
+def _cache_fresh(cached: dict) -> bool:
+    ts = cached.get("checked_ts", 0)
+    return bool(ts) and time.time() - ts < TTL_SECONDS
 
-    Returns {ok, checked, updates: [{name, installed, remote, url, sha256}],
-             latest: [{name, version, icon}]}.
+
+def check(force: bool = False) -> dict:
+    """Scan installed ∪ manifest, compare, write cache.
+
+    A fresh cache (≤ TTL) is returned as-is with no network I/O — the list
+    opens instantly; only a stale cache, an explicit force, or a missing
+    cache triggers the manifest fetch. Returns {ok, checked, updates:
+    [{name, installed, remote, url, sha256}], latest: [{name, version, icon}]}.
     """
+    cached = load_cache()
+    if not force and cached.get("ok") and _cache_fresh(cached):
+        return cached
+
     installed = installed_workflows()
     manifest = fetch_manifest()
     cfg = config()
@@ -268,9 +282,11 @@ def check() -> dict:
                 }
             )
 
+    now = time.time()
     cache = {
         "ok": True,
         "checked": time.strftime("%Y-%m-%d %H:%M"),
+        "checked_ts": now,
         "repo": cfg.get("repo", DEFAULT_REPO),
         "updates": updates,
         "latest": latest,
@@ -306,17 +322,13 @@ def item(
     return it
 
 
-def filter_json(query: str = "") -> None:
-    """Script-filter JSON for the list. A non-empty query (e.g. the text
-    typed after `update`, passed through the go-list external trigger)
-    narrows the rows to workflows whose name matches."""
+def filter_json() -> None:
+    """Script-filter JSON for the `update` list. Opens instantly from cache;
+    Alfred filters the rows as you type (alfredfiltersresults). The ↻ row
+    forces a fresh check; cached rows carry real specs so they stay
+    actionable even when the last check failed."""
     result = check()
-    q = (query or "").strip()
     items = []
-
-    def keep(name: str) -> bool:
-        """Case-insensitive substring match on the workflow name."""
-        return not q or q.lower() in (name or "").lower()
 
     if not result.get("ok"):
         items.append(
@@ -325,39 +337,32 @@ def filter_json(query: str = "") -> None:
                 "⚠ 检查失败（网络或清单不可用）",
                 "回车重试",
                 "refresh",
-                valid=False,
             )
         )
         for u in result.get("updates", []):
-            if not keep(u["name"]):
-                continue
+            arg = f"{u['name']}|{u['url']}|{u['sha256']}"
             items.append(
                 item(
                     f"cached-{u['name']}",
                     f"{u['name']}  {u['installed']} → {u['remote']}",
                     f"上次结果（{result.get('checked', '?')}）",
-                    "update",
-                    valid=False,
+                    arg,
                 )
             )
         print(json.dumps({"items": items}, ensure_ascii=False))
         return
 
-    updates = [u for u in result.get("updates", []) if keep(u["name"])]
-    latest = [lf for lf in result.get("latest", []) if keep(lf["name"])]
+    updates = result.get("updates", [])
+    latest = result.get("latest", [])
 
-    if q and not updates and not latest:
-        items.append(
-            item(
-                "nomatch",
-                f"没有匹配「{q}」的工作流",
-                "清空输入后回车查看全部",
-                "",
-                valid=False,
-            )
+    items.append(
+        item(
+            "refresh",
+            "↻ 重新检查",
+            f"强制联网刷新（上次检查 {result.get('checked', '?')}）",
+            "refresh",
         )
-        print(json.dumps({"items": items}, ensure_ascii=False))
-        return
+    )
 
     if updates:
         names = "、".join(u["name"] for u in updates[:3])
@@ -383,19 +388,15 @@ def filter_json(query: str = "") -> None:
                     mods={"cmd": {"arg": f"dl|{arg}", "subtitle": "仅下载，不导入"}},
                 )
             )
-        # “全部更新” only in the unfiltered view — with a filter active its
-        # scope would be ambiguous
-        if not q:
-            items.append(
-                item(
-                    "all",
-                    "全部更新",
-                    f"逐个下载并交给 Alfred 确认（{len(updates)} 个）",
-                    "all",
-                    valid=False,
-                )
+        items.append(
+            item(
+                "all",
+                "全部更新",
+                f"逐个下载并交给 Alfred 确认（{len(updates)} 个）",
+                "all",
             )
-    elif not q:
+        )
+    else:
         items.append(
             item(
                 "head",
@@ -436,9 +437,24 @@ def filter_json(query: str = "") -> None:
 
 
 def notify_summary() -> None:
-    result = check()
+    result = check(force=True)
     if not result.get("ok"):
         say("⚠ 检查失败（网络或清单不可用），输入 update 重试")
+        return
+    updates = result.get("updates", [])
+    if updates:
+        names = "、".join(u["name"] for u in updates)
+        say(f"⚡ {len(updates)} 个工作流可更新：{names}\n输入 update 查看并更新")
+    else:
+        say(f"✓ 全部已是最新（{result.get('checked', '')}）")
+
+
+def refresh_now() -> None:
+    """↻ row: force a fresh check, then summarize via the notification node
+    (update.sh reopens `update` so the fresh list is what the user sees)."""
+    result = check(force=True)
+    if not result.get("ok"):
+        say("⚠ 检查失败（网络或清单不可用）")
         return
     updates = result.get("updates", [])
     if updates:
@@ -544,7 +560,9 @@ def _dispatch() -> None:
     cmd = argv[0] if argv else "filter"
 
     if cmd == "filter":
-        filter_json(argv[1] if len(argv) > 1 else "")
+        filter_json()
+    elif cmd == "refresh":
+        refresh_now()
     elif cmd == "notify":
         notify_summary()
     elif cmd == "check":
@@ -560,7 +578,7 @@ def _dispatch() -> None:
                 specs.append((fields[0], "", ""))
         do_update(specs, download_only=(cmd == "download"))
     else:
-        say("Pulse: filter | notify | check | update | download")
+        say("Pulse: filter | refresh | notify | check | update | download")
 
 
 def main() -> None:

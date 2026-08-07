@@ -1,7 +1,7 @@
 {
   "repo": "SongRunqi/alfred-workflows",
   "branch": "main",
-  "updated": "2026-08-07 17:51:53 +0800",
+  "updated": "2026-08-08 00:05:15 +0800",
   "workflows": [
     {
       "name": "Homebrew Manager",
@@ -54,10 +54,10 @@
     {
       "name": "Pulse",
       "bundleid": "com.songyitian.pulse",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "file": "Pulse.alfredworkflow",
-      "sha256": "b9317bec162d22ad189a0cb0bc7ebc066a3394b573bbd8b12e91d682e6f7e254",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Pulse.alfredworkflow?v=b9317bec162d"
+      "sha256": "c177b63dc086ab0aa4a8e728ffe48625697a244540d5a020b324ae5e6614c492",
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/Pulse.alfredworkflow?v=c177b63dc086"
     },
     {
       "name": "SQL In",
