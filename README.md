@@ -38,6 +38,28 @@ Alfred → Preferences → Workflows.
   ~20 s. When re-importing, leave the dialog's migrate/keep option off or old
   keywords silently survive.
 
+### Release & update flow
+
+Every release follows 4 steps so the built-in updater ([Pulse](Pulse/),
+keyword `update`) detects it:
+
+1. **Bump the version** in the workflow's source `info.plist` (for generated
+   plists, the `"version"` in the build script) — must be **strictly newer**
+   than the installed version (`1.8.0 → 1.8.0` is never detected as an update).
+2. **Repack** the workflow: `./pack.sh` in its folder (`--universal` rebuilds
+   a universal engine binary).
+3. **Regenerate the manifest**: `bash scripts/gen-manifest.sh` — reads each
+   workflow's name/version from source and hashes the packaged zip into
+   `versions.json` (commit it along with the workflow changes).
+4. **Push to `main`** — Pulse fetches
+   `raw.githubusercontent.com/<repo>/main/versions.json` live on every
+   `update`, so nothing is detected until the manifest lands on `main`.
+
+Users do nothing: typing `update` re-fetches the manifest (the only delay is
+GitHub raw CDN caching, usually seconds). Replace-importing the new
+`.alfredworkflow` updates the installed version, and `update` then reports
+it as up to date.
+
 ## License
 
 Private/personal use unless noted otherwise.

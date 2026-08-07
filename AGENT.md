@@ -92,6 +92,33 @@
 
 ---
 
+### 发布新版：让 Pulse 检测到更新的完整流程（通用，所有工作流）
+
+Pulse（关键词 `update`）每次触发都**实时** curl 拉取
+`raw.githubusercontent.com/<repo>/main/versions.json`，按 bundle id 扫描已装
+工作流目录，比较版本：**manifest.version 严格大于已装 info.plist 的 version**
+才算「可更新」。无 TTL 缓存；`cache.json`（Workflow Data 下）只在拉取失败时
+兜底，**不需要手动清**。
+
+发布顺序（每次发布新版必做）：
+
+1. **升版本号**：改源 `info.plist` 的 `version`（生成式 plist 如 Glide，改
+   `build_plist.py` 里的 `"version"` 再重新生成）。⚠️ 必须**严格递增**：同号
+   修复（1.8.0 → 1.8.0）Pulse 不会检测到。格式随意（`1.8.0` / `v1.2.3-beta`），
+   比较时数字按数值、字母按字典序、忽略前缀 v
+2. **重新打包**：各工作流自己的 `./pack.sh`（需要重编引擎时 `./pack.sh --universal`）
+3. **重新生成清单**：`bash scripts/gen-manifest.sh` —— 从源 info.plist 读
+   name/bundleid/version，哈希根目录 `.alfredworkflow` 写 sha256，输出
+   `versions.json`（缺失的包打印 SKIP 跳过）
+4. **提交 + 推送**：工作流改动与 `versions.json` 一起 commit 并 push 到 main。
+   ⚠️ **不 push 就永远检测不到**（Pulse 只认 main 分支的 raw 地址）
+
+用户侧：**无需任何操作**，重新输 `update` 即实时生效；唯一延迟是 GitHub raw
+CDN 缓存（push 后通常几十秒内）。替换导入后已装版本 = manifest 版本，
+`update` 自动显示「已最新」。
+
+---
+
 ## Alfred 5.7.3 实测 ground truth（血泪经验）
 
 ### Script Filter `argumenttype` 枚举（与直觉相反！）
