@@ -123,6 +123,29 @@ Pulse（关键词 `update`）每次触发都**实时** curl 拉取
 CDN 缓存（push 后通常几十秒内）。替换导入后已装版本 = manifest 版本，
 `update` 自动显示「已最新」。
 
+### 踩坑记录：Pulse「校验和不匹配，已拒绝安装」（2026-08-07，Glide 1.8.0 发布）
+
+**症状**：用户 `update` 更新 Glide 时，Pulse 下载后报「校验和不匹配，
+已拒绝安装」。
+
+**根因**：`git add Glide/` 只暂存目录内文件，**仓库根目录的
+`Glide.alfredworkflow` 没进 commit**（git 里还是旧 1.7.0 包，154KB），而
+versions.json 已写入新包 sha256 —— GitHub raw 上文件与清单哈希对不上。
+
+**诊断三步**（本地 / git / raw 三处哈希与清单比对，谁不一致就是谁）：
+
+```bash
+shasum -a 256 Glide.alfredworkflow                     # ① 本地包
+git cat-file blob HEAD:Glide.alfredworkflow | shasum -a 256   # ② git 实际内容
+curl -sSL <raw url> | shasum -a 256                     # ③ raw 实际内容
+```
+
+**修复**：单独 `git add Glide.alfredworkflow` 补提交并 push；raw CDN 几十秒
+后同步，用户重新 `update` 即通过（无需改 versions.json，哈希本来是对的）。
+
+**预防**（已落地）：gen-manifest.sh URL 加 `?v=<sha12>` cache-buster；发布
+流程第 4/5 步（根目录包单独 add + 推后 curl 验证）就是为此加的。
+
 ---
 
 ## Alfred 5.7.3 实测 ground truth（血泪经验）
