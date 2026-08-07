@@ -1,7 +1,7 @@
 {
   "repo": "SongRunqi/alfred-workflows",
   "branch": "main",
-  "updated": "2026-08-07 10:21:28 +0800",
+  "updated": "2026-08-07 10:32:21 +0800",
   "workflows": [
     {
       "name": "Homebrew Manager",
@@ -14,10 +14,10 @@
     {
       "name": "NetEase Music Controls",
       "bundleid": "com.yitiansong.alfred.netease-music-controls",
-      "version": "2.0.2",
+      "version": "2.0.3",
       "file": "NetEase Music Controls.alfredworkflow",
-      "sha256": "49814f97b4b378fa02344dea8d9c8de807b5e008509dca1a81b5d4e8676abe69",
-      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/NetEase%20Music%20Controls.alfredworkflow?v=49814f97b4b3"
+      "sha256": "97bbd30601ca056038356f33308e454cf606fddec7b85c97d09d129207c89d2b",
+      "url": "https://raw.githubusercontent.com/SongRunqi/alfred-workflows/main/NetEase%20Music%20Controls.alfredworkflow?v=97bbd30601ca"
     },
     {
       "name": "Glide",

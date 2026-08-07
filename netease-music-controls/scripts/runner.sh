@@ -64,6 +64,11 @@ run_applescript() {
 # ---------------------------------------------------------------------------
 click_control() {
 	local candidates_str="$1"
+	# Second arg: what to run when no candidate menu item exists. Default
+	# errors (surfaced as a notification); "" = silent no-op, used by the
+	# strict play/pause actions where the item is legitimately absent
+	# (e.g. "Play" only exists while paused).
+	local on_missing="${2-error \"menu item not found\"}"
 	local snippet
 	snippet=$(
 		cat <<EOF
@@ -81,7 +86,9 @@ click_control() {
       end if
       if done then exit repeat
     end repeat
-    if not done then error "menu item not found"
+    if not done then
+      ${on_missing}
+    end if
 EOF
 	)
 	run_applescript "$snippet"
@@ -156,6 +163,18 @@ case "$ACTION" in
 
 toggle-play)
 	click_control '"Play", "Pause", "播放", "暂停"'
+	;;
+
+play)
+	# Strict play: clicks the Play item, which exists only while paused.
+	# Silent no-op when already playing (the menu then shows Pause).
+	click_control '"Play", "播放"' ""
+	;;
+
+pause)
+	# Strict pause: clicks the Pause item, which exists only while playing.
+	# Silent no-op when already paused (the menu then shows Play).
+	click_control '"Pause", "暂停"' ""
 	;;
 
 next-track)

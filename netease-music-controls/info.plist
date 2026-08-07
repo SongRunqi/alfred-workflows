@@ -60,6 +60,19 @@
 				<false/>
 			</dict>
 		</array>
+		<key>356FCB77-826F-4B19-8A07-64C80543B075</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>E81AE26E-3B4C-44CB-80DC-378B1E7841E5</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>3AAAA11C-E1C3-4E30-AA67-CEA34B56374C</key>
 		<array>
 			<dict>
@@ -242,6 +255,19 @@
 				<false/>
 			</dict>
 		</array>
+		<key>E81AE26E-3B4C-44CB-80DC-378B1E7841E5</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>NMC-NOTI</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 	</dict>
 	<key>createdby</key>
 	<string>yitiansong</string>
@@ -263,7 +289,7 @@
 				<key>subtext</key>
 				<string>NetEase Music</string>
 				<key>text</key>
-				<string>Play / Pause</string>
+				<string>Play</string>
 				<key>withspace</key>
 				<false/>
 			</dict>
@@ -282,7 +308,7 @@
 				<key>escaping</key>
 				<integer>127</integer>
 				<key>script</key>
-				<string>bash scripts/runner.sh toggle-play</string>
+				<string>bash scripts/runner.sh play</string>
 				<key>scriptargtype</key>
 				<integer>0</integer>
 				<key>scriptfile</key>
@@ -652,6 +678,50 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>argumenttype</key>
+				<integer>2</integer>
+				<key>keyword</key>
+				<string>pause</string>
+				<key>subtext</key>
+				<string>NetEase Music</string>
+				<key>text</key>
+				<string>Pause</string>
+				<key>withspace</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.keyword</string>
+			<key>uid</key>
+			<string>356FCB77-826F-4B19-8A07-64C80543B075</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>script</key>
+				<string>bash scripts/runner.sh pause</string>
+				<key>scriptargtype</key>
+				<integer>0</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>E81AE26E-3B4C-44CB-80DC-378B1E7841E5</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>lastpathcomponent</key>
 				<false/>
 				<key>onlyshowifquerypopulated</key>
@@ -672,7 +742,7 @@
 		</dict>
 	</array>
 	<key>readme</key>
-	<string>Direct keywords: play / next / prev / volup / voldn / like / dislike / shuffle / repeat1</string>
+	<string>Direct keywords: play / pause / next / prev / volup / voldn / like / dislike / shuffle / repeat1</string>
 	<key>uidata</key>
 	<dict>
 		<key>0D1E1140-ABBF-4390-9DD8-7F9339A4F21C</key>
@@ -702,6 +772,13 @@
 			<real>50</real>
 			<key>ypos</key>
 			<real>150</real>
+		</dict>
+		<key>356FCB77-826F-4B19-8A07-64C80543B075</key>
+		<dict>
+			<key>xpos</key>
+			<real>50</real>
+			<key>ypos</key>
+			<real>550</real>
 		</dict>
 		<key>3AAAA11C-E1C3-4E30-AA67-CEA34B56374C</key>
 		<dict>
@@ -801,6 +878,13 @@
 			<key>ypos</key>
 			<real>250</real>
 		</dict>
+		<key>E81AE26E-3B4C-44CB-80DC-378B1E7841E5</key>
+		<dict>
+			<key>xpos</key>
+			<real>280</real>
+			<key>ypos</key>
+			<real>550</real>
+		</dict>
 		<key>NMC-NOTI</key>
 		<dict>
 			<key>xpos</key>
@@ -814,7 +898,7 @@
 	<key>variablesdontexport</key>
 	<array/>
 	<key>version</key>
-	<string>2.0.2</string>
+	<string>2.0.3</string>
 	<key>webaddress</key>
 	<string>https://github.com/yitiansong/alfred-netease-music-controls</string>
 </dict>

@@ -18,14 +18,19 @@ Type one of the direct keywords in Alfred:
 
 | Keyword  | Action          | Keyword  | Action            |
 | -------- | --------------- | -------- | ----------------- |
-| `play`   | Play / Pause    | `volup`  | Volume up         |
-| `next`   | Next track      | `voldn`  | Volume down       |
-| `prev`   | Previous track  | `like`   | Like / toggle     |
-| `shuffle`| Toggle shuffle  | `dislike`| Dislike / unmark  |
+| `play`   | Play (resume)   | `volup`  | Volume up         |
+| `pause`  | Pause           | `voldn`  | Volume down       |
+| `next`   | Next track      | `like`   | Like / toggle     |
+| `prev`   | Previous track  | `dislike`| Dislike / unmark  |
+| `shuffle`| Toggle shuffle  |          |                   |
 | `repeat1`| Repeat one      |          |                   |
 
 Notes:
 
+- `play` and `pause` are strict, not a toggle: `play` only resumes
+  (silently no-ops while already playing) and `pause` only pauses
+  (silently no-ops while already paused) — each can be bound to its own
+  hotkey without fighting over one toggle.
 - `like` doubles as a toggle: if the current track is already liked, the menu
   shows the unlike entry and it gets clicked instead.
 - `dislike` prefers dislike/unlike entries (`不喜欢`, `取消喜欢`, `取消红心`, …)
