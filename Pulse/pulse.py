@@ -324,11 +324,12 @@ def item(
 
 
 def filter_json(query: str = "") -> None:
-    """Script-filter JSON for the list. A non-empty query — the text typed
-    after `update` and passed through the go-list trigger — narrows rows to
-    matching workflow names (回车后过滤). The list SF has an empty keyword,
-    so a deliberate query is the only way in, and Alfred keeps filtering
-    locally as the user types."""
+    """Script-filter JSON for the list. Ordering: system-level commands
+    (全部更新, ↻ 重新检查) on top, then per-workflow rows — updates first,
+    already-latest below. No summary/head row (the rows themselves carry the
+    state). A non-empty query — the text typed after `update`, passed through
+    the go-list trigger — narrows rows to matching workflow names, and Alfred
+    keeps filtering locally as the user types."""
     result = check()
     q = (query or "").strip()
     items = []
@@ -377,6 +378,17 @@ def filter_json(query: str = "") -> None:
         print(json.dumps({"items": items}, ensure_ascii=False))
         return
 
+    # System-level commands on top: 全部更新 (only when unfiltered and there
+    # is something to update), then ↻ 重新检查. Per-workflow rows follow.
+    if updates and not q:
+        items.append(
+            item(
+                "all",
+                "全部更新",
+                f"逐个下载并交给 Alfred 确认（{len(updates)} 个）",
+                "all",
+            )
+        )
     items.append(
         item(
             "refresh",
@@ -386,49 +398,16 @@ def filter_json(query: str = "") -> None:
         )
     )
 
-    if updates:
-        names = "、".join(u["name"] for u in updates[:3])
-        more = f" 等 {len(updates)} 个" if len(updates) > 3 else ""
+    for u in updates:
+        arg = f"{u['name']}|{u['url']}|{u['sha256']}"
         items.append(
             item(
-                "head",
-                f"⚡ {len(updates)} 个工作流可更新",
-                f"{names}{more} · 回车更新 · ⌘回车仅下载",
-                "",
-                valid=False,
-            )
-        )
-        for u in updates:
-            arg = f"{u['name']}|{u['url']}|{u['sha256']}"
-            items.append(
-                item(
-                    f"up-{u['name']}",
-                    f"{u['name']}  {u['installed'] or '?'} → {u['remote']}",
-                    "回车：更新（Alfred 确认替换）· ⌘回车：仅下载",
-                    arg,
-                    u.get("icon", ""),
-                    mods={"cmd": {"arg": f"dl|{arg}", "subtitle": "仅下载，不导入"}},
-                )
-            )
-        # “全部更新” only unfiltered — with a filter active its scope would
-        # be ambiguous
-        if not q:
-            items.append(
-                item(
-                    "all",
-                    "全部更新",
-                    f"逐个下载并交给 Alfred 确认（{len(updates)} 个）",
-                    "all",
-                )
-            )
-    elif not q:
-        items.append(
-            item(
-                "head",
-                "✓ 全部已是最新",
-                f"检查于 {result.get('checked', '?')}",
-                "",
-                valid=False,
+                f"up-{u['name']}",
+                f"{u['name']}  {u['installed'] or '?'} → {u['remote']}",
+                "回车：更新（Alfred 确认替换）· ⌘回车：仅下载",
+                arg,
+                u.get("icon", ""),
+                mods={"cmd": {"arg": f"dl|{arg}", "subtitle": "仅下载，不导入"}},
             )
         )
 

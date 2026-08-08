@@ -242,7 +242,7 @@ plist = {
     "description": "给工作流号脉：检查并更新已安装的 Alfred workflows",
     "createdby": "Songyitian",
     "webaddress": "",
-    "version": "1.4.0",
+    "version": "1.4.1",
     "category": "Tools",
     "disabled": False,
     "readme": README,
