@@ -2,7 +2,8 @@
 """Pulse — check and update Alfred workflows from the repo manifest.
 
 Commands (argv):
-    filter                    script-filter JSON for the `update` list
+    filter [query]            script-filter JSON for the list; a non-empty
+                              query (text after `update`) narrows by name
     refresh                   force a fresh check (↻ row) → summary + reopen
     notify                    silent check → notification summary (Hyper+U)
     check                     plain-text status (debug / tests)
@@ -322,13 +323,19 @@ def item(
     return it
 
 
-def filter_json() -> None:
-    """Script-filter JSON for the `update` list. Opens instantly from cache;
-    Alfred filters the rows as you type (alfredfiltersresults). The ↻ row
-    forces a fresh check; cached rows carry real specs so they stay
-    actionable even when the last check failed."""
+def filter_json(query: str = "") -> None:
+    """Script-filter JSON for the list. A non-empty query — the text typed
+    after `update` and passed through the go-list trigger — narrows rows to
+    matching workflow names (回车后过滤). The list SF has an empty keyword,
+    so a deliberate query is the only way in, and Alfred keeps filtering
+    locally as the user types."""
     result = check()
+    q = (query or "").strip()
     items = []
+
+    def keep(name: str) -> bool:
+        """Case-insensitive substring match on the workflow name."""
+        return not q or q.lower() in (name or "").lower()
 
     if not result.get("ok"):
         items.append(
@@ -340,6 +347,8 @@ def filter_json() -> None:
             )
         )
         for u in result.get("updates", []):
+            if not keep(u["name"]):
+                continue
             arg = f"{u['name']}|{u['url']}|{u['sha256']}"
             items.append(
                 item(
@@ -352,8 +361,21 @@ def filter_json() -> None:
         print(json.dumps({"items": items}, ensure_ascii=False))
         return
 
-    updates = result.get("updates", [])
-    latest = result.get("latest", [])
+    updates = [u for u in result.get("updates", []) if keep(u["name"])]
+    latest = [lf for lf in result.get("latest", []) if keep(lf["name"])]
+
+    if q and not updates and not latest:
+        items.append(
+            item(
+                "nomatch",
+                f"没有匹配「{q}」的工作流",
+                "换一个工作流名称试试",
+                "",
+                valid=False,
+            )
+        )
+        print(json.dumps({"items": items}, ensure_ascii=False))
+        return
 
     items.append(
         item(
@@ -388,15 +410,18 @@ def filter_json() -> None:
                     mods={"cmd": {"arg": f"dl|{arg}", "subtitle": "仅下载，不导入"}},
                 )
             )
-        items.append(
-            item(
-                "all",
-                "全部更新",
-                f"逐个下载并交给 Alfred 确认（{len(updates)} 个）",
-                "all",
+        # “全部更新” only unfiltered — with a filter active its scope would
+        # be ambiguous
+        if not q:
+            items.append(
+                item(
+                    "all",
+                    "全部更新",
+                    f"逐个下载并交给 Alfred 确认（{len(updates)} 个）",
+                    "all",
+                )
             )
-        )
-    else:
+    elif not q:
         items.append(
             item(
                 "head",
@@ -560,7 +585,7 @@ def _dispatch() -> None:
     cmd = argv[0] if argv else "filter"
 
     if cmd == "filter":
-        filter_json()
+        filter_json(argv[1] if len(argv) > 1 else "")
     elif cmd == "refresh":
         refresh_now()
     elif cmd == "notify":
